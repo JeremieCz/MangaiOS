@@ -1,0 +1,23 @@
+MangaiOS — notice complémentaire du projet iOS
+
+Attributions amont conservées depuis le README du dépôt :
+Copyright © 2015 Javier Tomás
+Copyright © 2024 Mihon Open Source Project
+
+MangaiOS reprend l’objectif fonctionnel du lecteur Android Tachiyomi/Mihon.
+Le socle iOS est une nouvelle implémentation native en SwiftUI et SwiftData.
+Il ne constitue pas une version officielle de Mihon.
+Le projet est distribué sous licence Apache 2.0 ; le fichier LICENSE du
+dépôt est inclus sans modification dans les ressources de l’application.
+
+Cette notice décrit les contributions propres au projet iOS et ne remplace
+pas une notice amont. Aucun fichier NOTICE original n’a été trouvé dans
+le dépôt fourni. Dès réception du fichier ou de sa référence vérifiable,
+il devra être conservé sans modification, séparément de cette notice,
+et rendu accessible dans l’application.
+
+Les nouveaux fichiers du socle iOS et les réglages Xcode sont des ajouts.
+Le fichier .gitignore a été complété pour les fichiers locaux Xcode.
+Les sources Android, leurs attributions et le fichier LICENSE sont inchangés.
+
+Cette notice est informative et ne modifie pas les conditions de la licence.

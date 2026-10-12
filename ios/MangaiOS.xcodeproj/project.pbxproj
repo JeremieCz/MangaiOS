@@ -1,0 +1,600 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		18CB9DB4F7E42A32398B50A9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE3D902C1C839D730E0B5774 /* Foundation.framework */; };
+		39673D137295560B671C5D6C /* NOTICE in Resources */ = {isa = PBXBuildFile; fileRef = A79A8E978C69F2C057802AAD /* NOTICE */; };
+		47A85320FB3EE2ABC7C2037F /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = F1DB033248C72C37527B20AD /* LICENSE */; };
+		6062AD889FDBA15DC49AE9DC /* StorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816C78D9CBEAB91C427B98AE /* StorageTests.swift */; };
+		66E9993E22874FF213DF4BDB /* LegalDocumentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1A4F00685789B3293ADB82 /* LegalDocumentTests.swift */; };
+		7105D6D37725D6485D0C0006 /* StorageFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6E526846C3BEAB195E8FFC4 /* StorageFactory.swift */; };
+		7577DDE5A6AA8D7EE2C7B7BF /* LegalNoticesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1BCE43870C4A706D470B46 /* LegalNoticesView.swift */; };
+		7A4DDA5EC39FF706C709118C /* Source.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B486598D6D99B0B1232A11C /* Source.swift */; };
+		9EEE8C99A4CEDF1E04613514 /* LegalDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E672CD9BF904D923C92A487 /* LegalDocument.swift */; };
+		A266EFEDA8741F984CF6D9A7 /* StorageMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69B89450AE17EA263CFF6F1 /* StorageMetadata.swift */; };
+		E1E0DD88851460D917B46D4E /* MangaiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B9AF98E8915ED013303FEA5 /* MangaiOSApp.swift */; };
+		FAA919BA7971DD1F94A7CFE0 /* LibraryPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8872D8A24FE8EB784D83EDC3 /* LibraryPlaceholderView.swift */; };
+		FE920E5353A204A0D1503CA4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE3D902C1C839D730E0B5774 /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C73C5254C1D3D34F57725598 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 05EC38FDDCF4F9D9F7C515F3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B0D05208951E7B7D36A4D3A;
+			remoteInfo = MangaiOS;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		241615AB665249D4675EC29A /* MangaiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MangaiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		29E429CDD5781D2E4F4BD846 /* MangaiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MangaiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2E672CD9BF904D923C92A487 /* LegalDocument.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalDocument.swift; sourceTree = "<group>"; };
+		42C8F0D0E114639C799958F2 /* Socle.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = Socle.txt; sourceTree = "<group>"; };
+		816C78D9CBEAB91C427B98AE /* StorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageTests.swift; sourceTree = "<group>"; };
+		8872D8A24FE8EB784D83EDC3 /* LibraryPlaceholderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryPlaceholderView.swift; sourceTree = "<group>"; };
+		8B486598D6D99B0B1232A11C /* Source.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Source.swift; sourceTree = "<group>"; };
+		9B9AF98E8915ED013303FEA5 /* MangaiOSApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MangaiOSApp.swift; sourceTree = "<group>"; };
+		A6E526846C3BEAB195E8FFC4 /* StorageFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageFactory.swift; sourceTree = "<group>"; };
+		A79A8E978C69F2C057802AAD /* NOTICE */ = {isa = PBXFileReference; includeInIndex = 1; path = NOTICE; sourceTree = "<group>"; };
+		B69B89450AE17EA263CFF6F1 /* StorageMetadata.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageMetadata.swift; sourceTree = "<group>"; };
+		CF1BCE43870C4A706D470B46 /* LegalNoticesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalNoticesView.swift; sourceTree = "<group>"; };
+		DE1A4F00685789B3293ADB82 /* LegalDocumentTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalDocumentTests.swift; sourceTree = "<group>"; };
+		DE3D902C1C839D730E0B5774 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		F1DB033248C72C37527B20AD /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		87AB0FA162DB715AB81D1024 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FE920E5353A204A0D1503CA4 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8BE0E49B4D445D171F464EA8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18CB9DB4F7E42A32398B50A9 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1ECCAC1A3217326C40DEC69B /* Reader */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Reader;
+			path = Reader;
+			sourceTree = "<group>";
+		};
+		1EF6D741C4D8EE9E28014C42 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				241615AB665249D4675EC29A /* MangaiOS.app */,
+				29E429CDD5781D2E4F4BD846 /* MangaiOSTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		32C9AF72EAA68C856087A0F8 /* Import */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Import;
+			path = Import;
+			sourceTree = "<group>";
+		};
+		4C41F2BA99B271AB2BAD4B33 /* Mentions légales */ = {
+			isa = PBXGroup;
+			children = (
+				F1DB033248C72C37527B20AD /* LICENSE */,
+				A79A8E978C69F2C057802AAD /* NOTICE */,
+			);
+			name = "Mentions légales";
+			sourceTree = "<group>";
+		};
+		5789A268714D80355ED98F03 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				42C8F0D0E114639C799958F2 /* Socle.txt */,
+			);
+			name = Documentation;
+			path = Documentation;
+			sourceTree = "<group>";
+		};
+		77D8664DD9D4C92BB22F486F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2E672CD9BF904D923C92A487 /* LegalDocument.swift */,
+				CF1BCE43870C4A706D470B46 /* LegalNoticesView.swift */,
+			);
+			name = Resources;
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		7A689D7F8426E3D12FFDB1AD /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				A6E526846C3BEAB195E8FFC4 /* StorageFactory.swift */,
+				B69B89450AE17EA263CFF6F1 /* StorageMetadata.swift */,
+			);
+			name = Persistence;
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		8921C3BBC9C61B435C48B2A3 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				8872D8A24FE8EB784D83EDC3 /* LibraryPlaceholderView.swift */,
+			);
+			name = Library;
+			path = Library;
+			sourceTree = "<group>";
+		};
+		99009C377A8D7EAA67B24E7B /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				DE1A4F00685789B3293ADB82 /* LegalDocumentTests.swift */,
+				816C78D9CBEAB91C427B98AE /* StorageTests.swift */,
+			);
+			name = Tests;
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		9BA20C426BD936BF37C171FC /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				9B9AF98E8915ED013303FEA5 /* MangaiOSApp.swift */,
+			);
+			name = Application;
+			path = Application;
+			sourceTree = "<group>";
+		};
+		BD59B220956146BF34460E5F /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				DE3D902C1C839D730E0B5774 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		D8348E2AD7E07DE6DF4683D9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BD59B220956146BF34460E5F /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E1A3D79CCBDAB00A156B9ED2 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				8B486598D6D99B0B1232A11C /* Source.swift */,
+			);
+			name = Sources;
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		E30C9AF8EE77D40DA177B782 /* Backups */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Backups;
+			path = Backups;
+			sourceTree = "<group>";
+		};
+		EB10A209D3BFE166F77ED7CB /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Domain;
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		F13136EE8F945D9FB1C64DD1 = {
+			isa = PBXGroup;
+			children = (
+				1EF6D741C4D8EE9E28014C42 /* Products */,
+				D8348E2AD7E07DE6DF4683D9 /* Frameworks */,
+				9BA20C426BD936BF37C171FC /* Application */,
+				EB10A209D3BFE166F77ED7CB /* Domain */,
+				7A689D7F8426E3D12FFDB1AD /* Persistence */,
+				8921C3BBC9C61B435C48B2A3 /* Library */,
+				1ECCAC1A3217326C40DEC69B /* Reader */,
+				32C9AF72EAA68C856087A0F8 /* Import */,
+				E30C9AF8EE77D40DA177B782 /* Backups */,
+				E1A3D79CCBDAB00A156B9ED2 /* Sources */,
+				77D8664DD9D4C92BB22F486F /* Resources */,
+				4C41F2BA99B271AB2BAD4B33 /* Mentions légales */,
+				5789A268714D80355ED98F03 /* Documentation */,
+				99009C377A8D7EAA67B24E7B /* Tests */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2B0D05208951E7B7D36A4D3A /* MangaiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DAEBC7BF92F3FE6B53ADF5BC /* Build configuration list for PBXNativeTarget "MangaiOS" */;
+			buildPhases = (
+				B67C1CC2EC95AEB5ED0967DB /* Sources */,
+				87AB0FA162DB715AB81D1024 /* Frameworks */,
+				C87479FBFC3CC037BF220FB2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MangaiOS;
+			productName = MangaiOS;
+			productReference = 241615AB665249D4675EC29A /* MangaiOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DFE5781D6806002A81EB450E /* MangaiOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 524775B963168395C7B2783A /* Build configuration list for PBXNativeTarget "MangaiOSTests" */;
+			buildPhases = (
+				81EBAC688C716B48522E94DC /* Sources */,
+				8BE0E49B4D445D171F464EA8 /* Frameworks */,
+				CACBA485CC55986C168EB5E9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F9EA64C3DE30C8831ABE799D /* PBXTargetDependency */,
+			);
+			name = MangaiOSTests;
+			productName = MangaiOSTests;
+			productReference = 29E429CDD5781D2E4F4BD846 /* MangaiOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		05EC38FDDCF4F9D9F7C515F3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1500;
+			};
+			buildConfigurationList = 90449B05B2C4D69E80E15DE2 /* Build configuration list for PBXProject "MangaiOS" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F13136EE8F945D9FB1C64DD1;
+			minimizedProjectReferenceProxies = 0;
+			preferredProjectObjectVersion = 100;
+			productRefGroup = 1EF6D741C4D8EE9E28014C42 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2B0D05208951E7B7D36A4D3A /* MangaiOS */,
+				DFE5781D6806002A81EB450E /* MangaiOSTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C87479FBFC3CC037BF220FB2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				47A85320FB3EE2ABC7C2037F /* LICENSE in Resources */,
+				39673D137295560B671C5D6C /* NOTICE in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CACBA485CC55986C168EB5E9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		81EBAC688C716B48522E94DC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66E9993E22874FF213DF4BDB /* LegalDocumentTests.swift in Sources */,
+				6062AD889FDBA15DC49AE9DC /* StorageTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B67C1CC2EC95AEB5ED0967DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1E0DD88851460D917B46D4E /* MangaiOSApp.swift in Sources */,
+				7105D6D37725D6485D0C0006 /* StorageFactory.swift in Sources */,
+				A266EFEDA8741F984CF6D9A7 /* StorageMetadata.swift in Sources */,
+				FAA919BA7971DD1F94A7CFE0 /* LibraryPlaceholderView.swift in Sources */,
+				7A4DDA5EC39FF706C709118C /* Source.swift in Sources */,
+				9EEE8C99A4CEDF1E04613514 /* LegalDocument.swift in Sources */,
+				7577DDE5A6AA8D7EE2C7B7BF /* LegalNoticesView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F9EA64C3DE30C8831ABE799D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MangaiOS;
+			target = 2B0D05208951E7B7D36A4D3A /* MangaiOS */;
+			targetProxy = C73C5254C1D3D34F57725598 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		405B92A5169AF0DA0032E31D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_TESTABILITY = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = MangaiOS;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.MangaiOS;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		4A326A2C2B32EF0A2C8A3F55 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_TESTABILITY = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = MangaiOS;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.MangaiOS;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4E4568CAD9EC5D96F83E5723 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.MangaiOS.Tests;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MangaiOS.app/MangaiOS";
+			};
+			name = Debug;
+		};
+		8F6912A0715DB338653242F8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		9FDDB78180D56549F1D1048C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.MangaiOS.Tests;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MangaiOS.app/MangaiOS";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CB697901A833B801F97357FF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		524775B963168395C7B2783A /* Build configuration list for PBXNativeTarget "MangaiOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9FDDB78180D56549F1D1048C /* Release */,
+				4E4568CAD9EC5D96F83E5723 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		90449B05B2C4D69E80E15DE2 /* Build configuration list for PBXProject "MangaiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F6912A0715DB338653242F8 /* Debug */,
+				CB697901A833B801F97357FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DAEBC7BF92F3FE6B53ADF5BC /* Build configuration list for PBXNativeTarget "MangaiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				405B92A5169AF0DA0032E31D /* Release */,
+				4A326A2C2B32EF0A2C8A3F55 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 05EC38FDDCF4F9D9F7C515F3 /* Project object */;
+}

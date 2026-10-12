@@ -1,0 +1,84 @@
+MangaiOS — étape 1 : socle iOS et mentions légales
+
+Périmètre
+---------
+Projet Xcode iOS 17+, interface SwiftUI, stockage SwiftData local et tests
+XCTest hébergés dans l’application. Aucun service tiers, paquet externe
+à l’exécution, accès réseau ou chargement de code externe.
+Le modèle StorageMetadata est technique : il ne représente pas une série.
+Le démarrage ouvre le stockage sans effacement ni repli silencieux vers
+une base temporaire en cas d’erreur.
+
+Organisation
+------------
+Application : démarrage et composition.
+Domain : emplacement réservé aux modèles métier.
+Persistence : schéma versionné, plan de migration et fabrique de stockage.
+Library : écran d’attente, sans fonctionnalité de bibliothèque.
+Reader, Import, Backups : emplacements réservés aux prochaines étapes.
+Sources : protocole vide, sans implémentation ni fournisseur.
+Resources : interface des mentions légales.
+Tests : modèle technique, stockage en mémoire et ressources légales.
+
+Ouvrir et valider sur macOS
+--------------------------
+Prérequis : Xcode 15 ou ultérieur et simulateur iOS 17 ou ultérieur.
+Ouvrir ios/MangaiOS.xcodeproj et sélectionner le schéma partagé MangaiOS.
+Choisir un simulateur iPhone ou iPad, lancer l’application, ouvrir les
+mentions légales, puis exécuter les tests avec Product > Test.
+
+Depuis la racine du dépôt, lister les destinations :
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS -showdestinations
+
+Compiler pour le simulateur :
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS \
+  -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO build
+
+Exécuter les tests sur un simulateur disponible, en remplaçant
+IDENTIFIANT_SIMULATEUR par son identifiant :
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS \
+  -destination 'platform=iOS Simulator,id=IDENTIFIANT_SIMULATEUR' \
+  -derivedDataPath ios/DerivedData \
+  -resultBundlePath ios/TestResults.xcresult CODE_SIGNING_ALLOWED=NO test
+
+Le répertoire TestResults.xcresult doit être absent avant une nouvelle
+exécution avec le même chemin. Les tests de ressources vérifient les fichiers
+embarqués dans l’application et doivent utiliser la cible de tests hébergée.
+Le projet est généré avec la bibliothèque libre xcodeproj ; il est commité
+et ne nécessite ni Ruby ni ce générateur pour être ouvert avec Xcode.
+
+Hypothèses et limites
+--------------------
+L’identifiant org.example.MangaiOS est provisoire. Pour un appareil réel,
+choisir une équipe de signature et un identifiant propre au distributeur.
+Le projet n’est pas prêt pour une distribution App Store : identité, icône
+et mentions légales définitives restent à valider.
+L’environnement de réalisation est Linux, sans Xcode ni simulateur Apple :
+compilation iOS, lancement et exécution XCTest restent à vérifier sur macOS.
+Une analyse syntaxique Swift ne constitue pas une compilation iOS.
+
+NOTICE et licence
+-----------------
+LICENSE est référencé directement depuis la racine et embarqué sans copie
+modifiée. ios/NOTICE est une notice complémentaire nouvelle, pas le fichier
+amont. Aucun NOTICE original n’a été trouvé dans l’arborescence fournie.
+Obtenir son contenu ou sa référence exacte avant de finaliser les mentions
+légales. À réception, préserver ses octets dans un fichier distinct et
+l’ajouter au projet, à l’écran légal et aux tests des ressources.
+Ne pas inventer de texte ni d’attributions au nom de l’amont.
+
+Écarts avec Android
+------------------
+SwiftUI remplace les composants Android ; SwiftData remplace SQLDelight,
+et non Room. Seul le stockage technique du socle est disponible.
+Bibliothèque, catégories, suivi de lecture, lecteur, import ComicInfo,
+sauvegardes avec fichiers et compatibilité Android expérimentale ne sont
+pas encore implémentés. Aucun test d’import n’est pertinent avant l’ajout
+du service d’import. Aucune extension, télémétrie ou source distante.
+Les sources et le fonctionnement du projet Android restent inchangés.
+
+Suite
+-----
+Attendre la validation du socle avant de commencer le domaine et la
+persistance métier (étape 2 du plan de migration).
