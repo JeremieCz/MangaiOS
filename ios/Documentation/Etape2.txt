@@ -156,6 +156,12 @@ Aucun xcodebuild, build Apple, test iOS/macOS ni simulateur n’a été exécut�
 sur Linux. La migration, les inverses et cascades doivent être exécutés
 sur iOS 17 avec Xcode, notamment avec les macros du SDK Apple.
 Aucune nouvelle dépendance, aucun outil de tests ni workaround de build.
+Les 18 nouveaux tests XCTest sont fournis mais non exécutés ici.
+L’analyse des fichiers modifiés n’a détecté aucun secret.
+Une revue statique complémentaire n’a identifié aucun problème significatif.
+La revue automatisée était indisponible (modèle absent). CodeQL Swift n’a
+pas pu créer sa base d’analyse ; aucun résultat de sécurité n’est donc acquis.
+La compilation et l’exécution des tests sur macOS restent requises.
 
 Commandes Xcode héritées (à exécuter sur macOS)
 ----------------------------------------------
