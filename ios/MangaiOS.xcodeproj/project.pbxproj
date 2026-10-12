@@ -7,17 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D6DDCCD1099A29B7084FB55 /* LibraryDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB65C407C3B7FF60F8BCA13 /* LibraryDomain.swift */; };
 		18CB9DB4F7E42A32398B50A9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE3D902C1C839D730E0B5774 /* Foundation.framework */; };
+		24C9ED1B466F2653631FEA03 /* LibraryDiskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BADC31CBCA0212B200C047 /* LibraryDiskTests.swift */; };
+		26D6544CCBE480DD76BCD318 /* StorageSchemaV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89CC715EFC01ECFFE723988 /* StorageSchemaV2.swift */; };
 		39673D137295560B671C5D6C /* NOTICE in Resources */ = {isa = PBXBuildFile; fileRef = A79A8E978C69F2C057802AAD /* NOTICE */; };
 		47A85320FB3EE2ABC7C2037F /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = F1DB033248C72C37527B20AD /* LICENSE */; };
 		6062AD889FDBA15DC49AE9DC /* StorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816C78D9CBEAB91C427B98AE /* StorageTests.swift */; };
 		66E9993E22874FF213DF4BDB /* LegalDocumentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1A4F00685789B3293ADB82 /* LegalDocumentTests.swift */; };
 		7105D6D37725D6485D0C0006 /* StorageFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6E526846C3BEAB195E8FFC4 /* StorageFactory.swift */; };
+		72BEACCF3632556F87463E06 /* SwiftDataLibraryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFC7E4944A1952A16AA08B2 /* SwiftDataLibraryRepository.swift */; };
 		7577DDE5A6AA8D7EE2C7B7BF /* LegalNoticesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1BCE43870C4A706D470B46 /* LegalNoticesView.swift */; };
+		76C9792113D12FC3BB788357 /* LibraryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727DC663ED82BC01BA0F8BFB /* LibraryRepository.swift */; };
 		7A4DDA5EC39FF706C709118C /* Source.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B486598D6D99B0B1232A11C /* Source.swift */; };
 		9EEE8C99A4CEDF1E04613514 /* LegalDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E672CD9BF904D923C92A487 /* LegalDocument.swift */; };
 		A266EFEDA8741F984CF6D9A7 /* StorageMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69B89450AE17EA263CFF6F1 /* StorageMetadata.swift */; };
+		A466FBB36AD413CB280EA8E0 /* LibraryRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2592B8D585361B88B05327A /* LibraryRepositoryTests.swift */; };
+		C4F6DED61AECFA2B3184764B /* LibraryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BD0362929BE85E19C9793B /* LibraryModels.swift */; };
 		E1E0DD88851460D917B46D4E /* MangaiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B9AF98E8915ED013303FEA5 /* MangaiOSApp.swift */; };
+		EE7854AD27BD7B15571CBA81 /* LibraryDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38AC52DCBA3742C259BD376B /* LibraryDomainTests.swift */; };
 		FAA919BA7971DD1F94A7CFE0 /* LibraryPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8872D8A24FE8EB784D83EDC3 /* LibraryPlaceholderView.swift */; };
 		FE920E5353A204A0D1503CA4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE3D902C1C839D730E0B5774 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -36,18 +44,27 @@
 		241615AB665249D4675EC29A /* MangaiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MangaiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		29E429CDD5781D2E4F4BD846 /* MangaiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MangaiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E672CD9BF904D923C92A487 /* LegalDocument.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalDocument.swift; sourceTree = "<group>"; };
+		38AC52DCBA3742C259BD376B /* LibraryDomainTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDomainTests.swift; sourceTree = "<group>"; };
 		42C8F0D0E114639C799958F2 /* Socle.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = Socle.txt; sourceTree = "<group>"; };
+		727DC663ED82BC01BA0F8BFB /* LibraryRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryRepository.swift; sourceTree = "<group>"; };
+		79BADC31CBCA0212B200C047 /* LibraryDiskTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDiskTests.swift; sourceTree = "<group>"; };
 		816C78D9CBEAB91C427B98AE /* StorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageTests.swift; sourceTree = "<group>"; };
 		8872D8A24FE8EB784D83EDC3 /* LibraryPlaceholderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryPlaceholderView.swift; sourceTree = "<group>"; };
 		8B486598D6D99B0B1232A11C /* Source.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Source.swift; sourceTree = "<group>"; };
 		9B9AF98E8915ED013303FEA5 /* MangaiOSApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MangaiOSApp.swift; sourceTree = "<group>"; };
 		A6E526846C3BEAB195E8FFC4 /* StorageFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageFactory.swift; sourceTree = "<group>"; };
 		A79A8E978C69F2C057802AAD /* NOTICE */ = {isa = PBXFileReference; includeInIndex = 1; path = NOTICE; sourceTree = "<group>"; };
+		A89CC715EFC01ECFFE723988 /* StorageSchemaV2.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageSchemaV2.swift; sourceTree = "<group>"; };
 		B69B89450AE17EA263CFF6F1 /* StorageMetadata.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageMetadata.swift; sourceTree = "<group>"; };
+		CAFC7E4944A1952A16AA08B2 /* SwiftDataLibraryRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftDataLibraryRepository.swift; sourceTree = "<group>"; };
 		CF1BCE43870C4A706D470B46 /* LegalNoticesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalNoticesView.swift; sourceTree = "<group>"; };
+		D1035A179F2D49B4724CDDCF /* Etape2.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = Etape2.txt; sourceTree = "<group>"; };
 		DE1A4F00685789B3293ADB82 /* LegalDocumentTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalDocumentTests.swift; sourceTree = "<group>"; };
 		DE3D902C1C839D730E0B5774 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E2592B8D585361B88B05327A /* LibraryRepositoryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryRepositoryTests.swift; sourceTree = "<group>"; };
+		EDB65C407C3B7FF60F8BCA13 /* LibraryDomain.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDomain.swift; sourceTree = "<group>"; };
 		F1DB033248C72C37527B20AD /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		F4BD0362929BE85E19C9793B /* LibraryModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryModels.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				42C8F0D0E114639C799958F2 /* Socle.txt */,
+				D1035A179F2D49B4724CDDCF /* Etape2.txt */,
 			);
 			name = Documentation;
 			path = Documentation;
@@ -128,6 +146,9 @@
 			children = (
 				A6E526846C3BEAB195E8FFC4 /* StorageFactory.swift */,
 				B69B89450AE17EA263CFF6F1 /* StorageMetadata.swift */,
+				F4BD0362929BE85E19C9793B /* LibraryModels.swift */,
+				A89CC715EFC01ECFFE723988 /* StorageSchemaV2.swift */,
+				CAFC7E4944A1952A16AA08B2 /* SwiftDataLibraryRepository.swift */,
 			);
 			name = Persistence;
 			path = Persistence;
@@ -147,6 +168,9 @@
 			children = (
 				DE1A4F00685789B3293ADB82 /* LegalDocumentTests.swift */,
 				816C78D9CBEAB91C427B98AE /* StorageTests.swift */,
+				38AC52DCBA3742C259BD376B /* LibraryDomainTests.swift */,
+				E2592B8D585361B88B05327A /* LibraryRepositoryTests.swift */,
+				79BADC31CBCA0212B200C047 /* LibraryDiskTests.swift */,
 			);
 			name = Tests;
 			path = Tests;
@@ -197,6 +221,8 @@
 		EB10A209D3BFE166F77ED7CB /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				EDB65C407C3B7FF60F8BCA13 /* LibraryDomain.swift */,
+				727DC663ED82BC01BA0F8BFB /* LibraryRepository.swift */,
 			);
 			name = Domain;
 			path = Domain;
@@ -316,6 +342,9 @@
 			files = (
 				66E9993E22874FF213DF4BDB /* LegalDocumentTests.swift in Sources */,
 				6062AD889FDBA15DC49AE9DC /* StorageTests.swift in Sources */,
+				EE7854AD27BD7B15571CBA81 /* LibraryDomainTests.swift in Sources */,
+				A466FBB36AD413CB280EA8E0 /* LibraryRepositoryTests.swift in Sources */,
+				24C9ED1B466F2653631FEA03 /* LibraryDiskTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +359,11 @@
 				7A4DDA5EC39FF706C709118C /* Source.swift in Sources */,
 				9EEE8C99A4CEDF1E04613514 /* LegalDocument.swift in Sources */,
 				7577DDE5A6AA8D7EE2C7B7BF /* LegalNoticesView.swift in Sources */,
+				0D6DDCCD1099A29B7084FB55 /* LibraryDomain.swift in Sources */,
+				76C9792113D12FC3BB788357 /* LibraryRepository.swift in Sources */,
+				C4F6DED61AECFA2B3184764B /* LibraryModels.swift in Sources */,
+				26D6544CCBE480DD76BCD318 /* StorageSchemaV2.swift in Sources */,
+				72BEACCF3632556F87463E06 /* SwiftDataLibraryRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

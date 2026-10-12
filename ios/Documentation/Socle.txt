@@ -1,5 +1,8 @@
 MangaiOS — étape 1 : socle iOS et mentions légales
 
+Note historique : ce document décrit l’état et les vérifications de l’étape 1.
+Le domaine et la persistance de l’étape 2 sont décrits dans Etape2.txt.
+
 Périmètre
 ---------
 Projet Xcode iOS 17+, interface SwiftUI, stockage SwiftData local et tests
@@ -94,5 +97,5 @@ Les sources et le fonctionnement du projet Android restent inchangés.
 
 Suite
 -----
-Attendre la validation du socle avant de commencer le domaine et la
-persistance métier (étape 2 du plan de migration).
+Le domaine et la persistance métier sont désormais ajoutés à l’étape 2 ;
+voir Etape2.txt pour le schéma, les invariants et les limites de validation.

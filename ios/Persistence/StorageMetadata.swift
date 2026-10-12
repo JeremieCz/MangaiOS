@@ -25,10 +25,10 @@ enum StorageSchemaV1: VersionedSchema {
 
 enum StorageMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [StorageSchemaV1.self]
+        [StorageSchemaV1.self, StorageSchemaV2.self]
     }
 
     static var stages: [MigrationStage] {
-        []
+        [.lightweight(fromVersion: StorageSchemaV1.self, toVersion: StorageSchemaV2.self)]
     }
 }

@@ -1,0 +1,184 @@
+MangaiOS — étape 2 : domaine et persistance locale
+
+Périmètre
+---------
+Cette étape ajoute uniquement le domaine, le dépôt et le schéma métier.
+L’application conserve son écran d’attente et son traitement non destructif
+des erreurs d’ouverture. Aucune interface de bibliothèque, importation,
+lecture, sauvegarde, source active ou opération sur les fichiers n’est ajoutée.
+Android, LICENSE, les ressources légales et les tests hébergés sont inchangés.
+
+Identifiants et identité métier
+------------------------------
+Les séries, chapitres, catégories, fichiers, pages, historiques et réglages
+possèdent des UUID persistés et stables. Les DTO permettent de fournir les
+UUID d’une création ; la génération par défaut a lieu une seule fois.
+Les UUID sont uniques par type de modèle, pas entre types différents.
+Les historiques et réglages par série ont leurs propres UUID, ainsi qu’une
+clé unique du chapitre/de la série pour empêcher plusieurs enregistrements.
+Les réglages globaux et la catégorie système ont des UUID fixes distincts.
+
+La paire sourceID/sourceKey identifie une série ; sourceID vaut « local »
+par défaut. Une clé de chapitre est unique dans sa série. Les clés dérivées
+préfixent chaque composant par sa longueur UTF-8, sans concaténation ambiguë.
+Ces contraintes utilisent des attributs .unique simples compatibles iOS 17,
+pas de contrainte composée iOS 18. Les clés sont opaques, sensibles à la casse,
+non vides ; elles ne sont pas modifiées après création.
+La présence d’un identifiant ou d’une identité métier existante provoque
+une erreur explicite, jamais un upsert implicite de SwiftData. Les doublons
+d’UUID de fichiers/pages sont aussi contrôlés avant insertion, y compris
+au sein d’un même lot de création de chapitre.
+Les UUID générés par le dépôt pour historiques et réglages par série sont
+également vérifiés avant insertion ; une clé de réglages de série déjà
+présente sans sa série est refusée, sans upsert ni réparation silencieuse.
+
+Métadonnées et références locales
+--------------------------------
+Une série contient titre, auteurs, artistes, résumé, genres, statut, notes,
+note facultative entre 0 et 10 et référence facultative de couverture.
+favoriteAt, facultatif, définit son appartenance à la bibliothèque.
+Un chapitre contient clé, titre, numéro facultatif fini et positif ou nul,
+ordre positif ou nul, état lu, signet, dernière page, fichiers et pages.
+L’ordre des pages à la création définit leurs indices contigus à partir
+de zéro ; le nombre de pages est calculé, jamais stocké indépendamment.
+Les chapitres sont triés par ordre puis UUID en cas d’égalité.
+
+Les fichiers ont type (image/archive/document), chemin relatif et taille
+facultative positive ou nulle. Une page référence un fichier du même chapitre,
+avec entrée facultative indexée zéro et dimensions facultatives positives.
+Une couverture possède sa propre référence ; elle n’emprunte pas un fichier
+de chapitre. Les références locales ne supposent pas que le fichier existe.
+RelativePath valide construction ET décodage : aucun chemin absolu, point,
+parent, segment vide, antislash ou variante Unicode de séparateur,
+deux-points, caractère de contrôle, tilde
+initial ou encodage pourcentage. Les noms Unicode et espaces restent permis.
+Il s’agit de références, pas d’un résolveur de fichiers : confinement réel,
+liens symboliques, accès disque, formats et import seront traités plus tard.
+Les chemins stockés sont relus avec validation, sans effacement réparateur.
+
+Réglages et progression
+----------------------
+Cinq modes typés : gauche vers droite, droite vers gauche, vertical paginé,
+webtoon et vertical continu. Le défaut global est droite vers gauche.
+Les options de doubles pages (désactivées/automatiques/activées) et couverture
+isolée préparent le lecteur sans l’implémenter. Par série, nil signifie
+hériter de la valeur globale pour chaque option indépendamment.
+Les valeurs brutes inconnues stockées déclenchent une erreur plutôt qu’un
+repli silencieux. La remise à zéro des overrides rétablit l’héritage.
+
+Une progression exige une page dans 0..<nombreDePages : aucune progression
+n’est possible pour un chapitre sans pages. Atteindre la dernière page
+marque lu ; revenir en arrière ne retire pas cet état. Seul setRead(false)
+le retire explicitement et remet la dernière page à nil. Le signet est
+indépendant. Un marquage manuel lu ne fabrique pas d’événement historique.
+L’historique est agrégé, au plus un par chapitre : UUID stable, date de
+dernière lecture, page de cet événement et durée cumulée. Une durée fournie
+est un incrément fini positif ou nul ; le cumul doit rester fini.
+Un événement ancien contribue à la durée sans reculer la date historique.
+La progression représente le dernier appel accepté, pas un maximum de page.
+Les dates non finies sont refusées. Le futur lecteur devra fournir des
+incréments non répétés ; aucun mécanisme de session de lecture n’existe ici.
+
+Catégories et suppression
+------------------------
+La catégorie système « Sans catégorie » est créée idempotemment à
+l’ouverture du dépôt, à l’ordre zéro, avec son UUID fixe. Elle ne peut
+être renommée, supprimée, réordonnée ou affectée explicitement à une série.
+Ses membres sont calculés : toute série sans catégorie utilisateur,
+y compris hors bibliothèque. Le stockage n’entretient pas de fausse
+association à cette catégorie. Les catégories utilisateur sont réordonnées
+par une permutation complète, leurs ordres restant contigus de 1 à N.
+Leurs noms ne sont pas uniques, mais ne peuvent être vides.
+Une association série-catégorie ne peut apparaître deux fois. Les deux
+côtés de la relation M:N sont inverses ; supprimer une catégorie détache
+ses associations, conserve les séries et renumérote les catégories.
+
+Retirer de la bibliothèque (favoriteAt = nil) conserve toutes les
+métadonnées, associations, chapitres, réglages et historiques.
+Supprimer une série cascade vers ses chapitres, fichiers de couverture
+et réglages par série, jamais vers ses catégories. Supprimer un chapitre
+cascade vers ses fichiers, pages et historique. Les références fichier-page
+sont inverses et nullifiantes ; le chapitre reste le propriétaire des deux.
+Aucune suppression de métadonnées ne supprime un fichier physique.
+Les références sont immuables après création à cette étape : les futurs
+services d’import/remplacement devront définir leurs propres transactions.
+
+Dépôt et transactions
+---------------------
+LibraryRepository est un protocole @MainActor exposant UUID et DTO valeurs,
+jamais des @Model mutables. SwiftDataLibraryRepository détient un ModelContext
+privé distinct de mainContext, avec autosave désactivé. Toute écriture
+valide, sauvegarde explicitement et effectue rollback à la moindre erreur.
+Les lectures de DTO ne permettent pas de contourner les invariants.
+Le dépôt est la seule frontière d’écriture métier autorisée ; ouvrir un
+autre contexte pour muter directement les @Model n’est pas une API publique.
+Utiliser un dépôt métier par conteneur ouvert, sans écrivain parallèle
+externe ; le dépôt ne prétend pas fournir un verrou interprocessus.
+Les modèles restent internes pour SwiftData et les tests @testable.
+
+Schéma et migration
+-------------------
+StorageMetadata et la définition de StorageSchemaV1 sont conservés tels quels.
+StorageSchemaV2 ajoute huit modèles métier au modèle technique.
+StorageMigrationPlan déclare V1 puis V2 et une migration lightweight additive.
+StorageFactory ouvre V2 localement avec CloudKit désactivé. Une URL explicite
+permet les fixtures et réouvertures disque ; elle n’est pas combinable avec
+le mode mémoire. Une erreur d’ouverture n’efface jamais l’ancien stockage.
+Les données techniques V1 ne représentent pas des séries à convertir.
+Les réglages par défaut et la catégorie système sont initialisés par le
+dépôt après ouverture/migration, pas par une migration destructrice.
+
+Tests fournis et validation Linux
+--------------------------------
+Les XCTest existants sont conservés et restent hébergés dans l’application
+pour préserver Bundle.main et les ressources légales.
+LibraryDomainTests couvre chemins, décodage, identités, options héritées,
+métadonnées et validation des références.
+LibraryRepositoryTests couvre DTO, UUID, doublons, relations M:N, catégorie
+protégée, ordre, réglages, progression, agrégation, entrées invalides,
+rollback après mutation partielle, contexte indépendant, cascades et
+conteneurs mémoire isolés.
+LibraryDiskTests couvre une réouverture disque, persistance des relations,
+absence de suppression physique et migration d’un vrai stockage V1 vers V2,
+avec préservation de StorageMetadata puis nouvelle réouverture V2.
+Les seules fixtures disque sont des données fictives dans un répertoire
+UUID sous FileManager.temporaryDirectory, supprimé par defer après le test.
+
+Vérifications réalisables et effectuées ici :
+- swiftc -frontend -parse sur tous les fichiers Swift sous ios ;
+- swiftc -typecheck ios/Domain/LibraryDomain.swift ios/Domain/LibraryRepository.swift ;
+- inspection xcodeproj 1.28.1 des références, cibles/configurations, schéma
+  partagé et maintien de TEST_HOST/BUNDLE_LOADER pour les tests hébergés ;
+- git diff --check.
+L’analyse syntaxique ne développe pas les macros SwiftData/#Predicate.
+Le typecheck portable ne vérifie pas SwiftData, SwiftUI ni les XCTest iOS.
+Aucun xcodebuild, build Apple, test iOS/macOS ni simulateur n’a été exécuté
+sur Linux. La migration, les inverses et cascades doivent être exécutés
+sur iOS 17 avec Xcode, notamment avec les macros du SDK Apple.
+Aucune nouvelle dépendance, aucun outil de tests ni workaround de build.
+
+Commandes Xcode héritées (à exécuter sur macOS)
+----------------------------------------------
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS -showdestinations
+
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS \
+  -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO build
+
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS \
+  -destination 'platform=iOS Simulator,id=IDENTIFIANT_SIMULATEUR' \
+  -derivedDataPath ios/DerivedData \
+  -resultBundlePath ios/TestResults.xcresult CODE_SIGNING_ALLOWED=NO test
+
+Remplacer IDENTIFIANT_SIMULATEUR, et choisir un chemin de résultat absent.
+Ne pas rendre les tests légaux non hébergés pour faciliter un test Linux.
+
+Écarts et suite
+--------------
+SwiftData local remplace SQLDelight, sans compatibilité automatique du
+format SQLDelight ni base Android. Les UUID, valeurs typées et relations
+explicites remplacent les clés numériques/bitmasks ; aucun contrat d’échange
+Android n’est annoncé. Les cinq modes ont la même intention fonctionnelle,
+mais pas de moteur de rendu. L’import (dont ComicInfo), la résolution des
+fichiers, les archives, l’interface de bibliothèque, le lecteur et les
+sauvegardes restent différés. Le protocole Source reste sans implémentation.
