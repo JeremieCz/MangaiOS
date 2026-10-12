@@ -58,6 +58,20 @@ L’environnement de réalisation est Linux, sans Xcode ni simulateur Apple :
 compilation iOS, lancement et exécution XCTest restent à vérifier sur macOS.
 Une analyse syntaxique Swift ne constitue pas une compilation iOS.
 
+Validation effectuée dans l’environnement de réalisation
+-------------------------------------------------------
+Les références du projet, les sept sources applicatives, les deux fichiers
+XCTest, les ressources légales, les cibles iOS 17 et le schéma partagé
+(lancement et tests) ont été vérifiés avec xcodeproj.
+L’analyse syntaxique des neuf fichiers Swift et la vérification des types
+des fichiers portables LegalDocument et Source ont réussi.
+Six tests XCTest sont fournis, mais n’ont pas été exécutés.
+L’analyse de secrets n’a détecté aucun secret.
+Une revue statique complémentaire n’a trouvé aucun bug à forte confiance.
+La revue automatisée était indisponible (modèle absent) ; CodeQL Swift n’a
+pas pu créer sa base d’analyse dans cet environnement sans build Apple.
+L’absence de résultat CodeQL n’est pas une validation de sécurité.
+
 NOTICE et licence
 -----------------
 LICENSE est référencé directement depuis la racine et embarqué sans copie
