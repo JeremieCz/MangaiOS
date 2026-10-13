@@ -180,3 +180,12 @@ Apple ni build iOS n’est annoncé.
 Correction ComicInfo : parse Swift de tous les fichiers et typecheck portable de
 LibraryDomain.swift, ImportPolicy.swift, ComicInfo.swift et ImportPolicyTests.swift
 effectués sous Linux avec Swift 6.4 ; git diff --check réussi. Aucun XCTest exécuté.
+
+Revue et sécurité
+-----------------
+La revue statique complémentaire n’a trouvé aucun problème significatif.
+L’analyse des fichiers modifiés n’a détecté aucun secret.
+La revue automatisée était indisponible (modèle absent). CodeQL Swift n’a
+pas pu créer sa base d’analyse dans cet environnement ; cela ne constitue
+pas un résultat de sécurité positif. Résolution SwiftPM, compilation et
+exécution des 52 tests restent à effectuer avec Xcode sur macOS.
