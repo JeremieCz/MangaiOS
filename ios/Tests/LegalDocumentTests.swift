@@ -21,4 +21,11 @@ final class LegalDocumentTests: XCTestCase {
     func testMissingResourceThrows() {
         XCTAssertThrowsError(try LegalDocument.license.text(in: Bundle(for: Self.self)))
     }
+
+    func testZIPFoundationMITLicenseIsBundled() throws {
+        let text = try LegalDocument.zipFoundation.text()
+        XCTAssertTrue(text.hasPrefix("MIT License\n"))
+        XCTAssertTrue(text.contains("Copyright (c) 2017-2025 Thomas Zoechling"))
+        XCTAssertTrue(text.contains("THE SOFTWARE IS PROVIDED \"AS IS\""))
+    }
 }

@@ -1,0 +1,182 @@
+MangaiOS — Étape 3 : import local (iOS 17+)
+==========================================
+
+Périmètre
+---------
+Depuis le bouton « Importer » du placeholder : choisir dans Fichiers un ZIP,
+CBZ ou dossier ; préparation asynchrone hors acteur principal, aperçu,
+destination (nouvelle série ou série existante), confirmation explicite,
+progression, annulation et résultat chapitre/pages. Pas de lecteur ni d’UI
+fonctionnelle de bibliothèque. Le dépôt partagé est initialisé une fois par
+application, et initialise ses données système de façon idempotente.
+
+ZIPFoundation est la seule dépendance : SwiftPM Xcode, version EXACTE
+0.9.20, MIT. La licence du tag est embarquée et affichée dans les mentions
+légales. Le contrôle advisory effectué pour cette version n’a signalé
+aucune vulnérabilité. La résolution SwiftPM et la compilation Apple restent
+à effectuer sur macOS ; aucune résolution n’est prétendue sous Linux.
+
+Formats et organisation
+----------------------
+ZIP classique mono-volume, compression store/deflate, avec CRC contrôlé
+pendant extraction par blocs de 64 Kio. ZIP64, chiffrement, archives vides,
+tronquées, incohérentes et méthodes de compression différentes : refus.
+Le répertoire central et les en-têtes locaux sont précontrôlés, et le nombre
+réel d’entrées ZIPFoundation doit correspondre au nombre annoncé.
+
+Un dossier sélectionné = un chapitre, même avec sous-dossiers. Les chemins
+relatifs entiers sont triés naturellement, avec locale POSIX fixe, puis
+ordre UTF-8 pour les égalités (001 avant 01 avant 1). Les noms de fichiers
+privés sont des indices stables, à partir de zéro. Un manifest.json versionné
+conserve index, chemin d’origine, dimensions, taille et SHA-256 de chaque page.
+Les images sont des fichiers .image ; manifeste et XML sont des .document.
+L’archive source n’est pas copiée en plus des pages.
+
+Extensions prises en charge : JPEG/JPG, PNG, GIF, WebP, HEIC/HEIF, TIFF/TIF,
+BMP ; le format réel doit être reconnu par ImageIO. Le système doit fournir
+le codec. Une seule image par fichier : animations GIF et TIFF/HEIF
+multi-image sont refusés, pas aplatis silencieusement. Dimensions, statut du
+décodage et miniature de 256 pixels sont contrôlés sans décodage pleine taille.
+Un fichier inconnu, une image invalide ou une erreur de parcours refuse
+l’import complet, avec raison et chemin ; aucun import partiel silencieux.
+
+Les entrées cachées (composante commençant par « . ») et __MACOSX sont
+ignorées comme contenu, mais comptées pour les limites et contrôlées pour
+les liens/chemins. Dans un ZIP, leur flux est aussi contrôlé (taille et CRC),
+sans créer de fichier privé. Tous les liens symboliques sont refusés, y compris cachés.
+Les chemins absolus, traversées, séparateurs alternatifs, contrôles et
+doublons après normalisation Unicode canonique + minuscules sont refusés.
+Les fichiers sources ne sont jamais déplacés, modifiés ou supprimés.
+
+Limites et fournisseurs
+-----------------------
+Par import : 10 000 entrées, 2 000 pages, 100 Mio par fichier,
+2 Gio décompressés au total, archive compressée de 2 Gio maximum,
+ComicInfo de 1 Mio maximum, 80 millions de pixels par page,
+chemin UTF-8 de 1 024 octets maximum. Réserve disque : 64 Mio.
+XML : profondeur 16 et 2 048 éléments maximum.
+Ces limites sont injectables pour les tests, comme la racine privée et la
+capacité disque. Les compteurs portent aussi sur les octets réellement
+décompressés ; les tailles annoncées ne suffisent pas.
+
+La capacité disponible est contrôlée avant la copie et pour chaque bloc ;
+une capacité inconnue est refusée. Les URL Fichiers sont lues sous
+NSFileCoordinator (matérialisation des fournisseurs cloud) et un accès
+security-scoped équilibré, terminé même en cas d’erreur ou d’annulation.
+L’annulation est coopérative entre entrées/blocs ; elle ne peut interrompre
+un fournisseur cloud ou un décodage ImageIO déjà en cours.
+
+ComicInfo et choix explicites
+-----------------------------
+Un seul ComicInfo.xml, à n’importe quelle profondeur. Ses octets originaux
+sont conservés exactement, et le manifeste conserve les métadonnées proposées.
+UTF-8 uniquement. XMLParser traite les namespaces, ne résout aucune entité
+externe ; les déclarations DTD/ENTITY sont refusées avant analyse, sans I/O
+externe. Racine ComicInfo obligatoire ; les données ne sont jamais exécutées.
+
+Series, Title, Number, Summary, Writer, Penciller, Inker, Colorist, Letterer,
+CoverArtist, Genre, Tags et Year/Month/Day sont proposés. Genre + Tags et les
+artistes sont fusionnés sans doublons exacts, en conservant l’ordre. Categories,
+Translator et Scanlator restent des données ; les catégories ne sont pas appliquées.
+Les noms locaux PublishingStatusTachiyomi (ty) et SourceMihon (mh), tels que
+définis dans le ComicInfo.kt Android, sont reconnus indépendamment du préfixe ;
+Android déclare les deux namespaces comme http://www.w3.org/2001/XMLSchema.
+Ces champs priment sur les anciens Status/Source génériques, quel que soit leur
+ordre XML. Le repli générique intervient seulement si le champ amont est absent
+ou vide, jamais pour remplacer un statut amont inconnu.
+L’enum ComicInfoPublishingStatus est défini dans ce même ComicInfo.kt dans
+ce dépôt (pas de fichier ComicInfoPublishingStatus.kt séparé). Correspondances :
+Ongoing → ongoing ; Completed et Publishing finished → completed ;
+Cancelled → cancelled ; On hiatus → hiatus ; Unknown → unknown.
+Licensed → unknown avec avertissement : SeriesStatus n’a pas de statut de licence.
+Tout autre statut non représentable devient unknown avec avertissement et reste
+dans le XML original. Le repli Status accepte les valeurs iOS unknown, ongoing,
+completed, hiatus, cancelled sans distinction de casse. SourceMihon/Source reste
+une chaîne inactive, jamais exécutée, ouverte ni téléchargée.
+Le titre du fichier/dossier sert de repli ; le titre de nouvelle série est
+modifiable avant confirmation et prime sur ComicInfo. Les autres valeurs
+sont montrées comme propositions ; pour une série existante AUCUNE
+métadonnée, catégorie, préférence ou progression existante n’est écrasée.
+
+Numéro négatif/non fini/invalide : absent + avertissement. Date impossible :
+absente + avertissement ; année seule : 1er janvier ; jour absent : 1er du mois.
+Année 1...9999, calendrier grégorien UTC. La date et les traducteurs du chapitre
+sont persistés dans le manifeste et dans le XML original, pas dans les champs
+SwiftData du chapitre : le schéma V2 et toutes les anciennes définitions
+restent inchangés. Pas de migration ni d’affichage lecteur de ces champs.
+
+Doublons et transactions
+------------------------
+Empreinte SHA-256 stable sur chemins normalisés + hashes des contenus,
+dans l’ordre naturel, XML inclus : la recompression/réorganisation ZIP
+ne change pas l’empreinte, renommer une page ou modifier le XML la change.
+Nouvelle série locale : sourceKey « import:empreinte » ; chapitre :
+clé « import:empreinte » dans sa série cible. Doublon refusé par défaut ;
+l’utilisateur peut annuler/abandonner ou autoriser explicitement une copie
+séparée (nouvelles clés suffixées d’un UUID, nouveaux UUID, aucune progression
+héritée). Une nouvelle série est ajoutée à la bibliothèque. Ajouter à une
+série existante ne change pas son statut de favori. Aucun remplacement.
+Les doublons exacts de clés sont revérifiés par la transaction du dépôt.
+
+La méthode commitImport crée éventuellement une série et son chapitre dans
+UNE transaction SwiftData avec save/rollback. Les méthodes publiques
+createSeries/createChapter réutilisent les mêmes validations, sans sauvegardes
+imbriquées. Une erreur de chapitre ne laisse pas de série partielle.
+
+Les fichiers vont d’abord dans Application Support/MangaiOS/LocalContent/
+staging/UUID, puis sont renommés vers imports/UUID sur le même volume avant
+la transaction du dépôt. Échec base : suppression uniquement de ce nouveau
+dossier privé. Échec de renommage : staging conservé, confirmation réessayable
+ou abandon nettoyé. Les erreurs de nettoyage sont explicitement rapportées,
+pas masquées. Une annulation tardive après save ne supprime JAMAIS les fichiers
+du chapitre validé. Les préparations et installations sont suivies par acteur ;
+une même préparation ne peut pas être validée simultanément.
+
+Limite de crash : fichiers et base ne forment pas une transaction système
+unique. Un arrêt entre renommage et save peut laisser un dossier privé orphelin,
+ou un staging interrompu. Aucun nettoyage automatique destructeur au démarrage :
+une future maintenance devra comparer les références persistées avant de
+proposer un nettoyage. L’original reste intact ; pas de promesse de récupération
+automatique après crash. Une erreur de nettoyage peut nécessiter cette
+maintenance future. Les données committées ne sont jamais purgées par l’import.
+
+Tests et validation
+-------------------
+Les 24 tests existants ont été conservés (baseline Xcode confirmée par
+l’utilisateur). 28 nouveaux XCTest sont déclarés (52 au total), avec
+112 nouveaux sites XCTAssert et 8 sites XCTFail pour les refus attendus
+(différence avec HEAD ; 280 sites XCTAssert au total, pas un compte d’exécutions).
+Nouveaux XCTest : ordre naturel/Unicode, metadata namespaces,
+valeurs de statut Android, priorité/repli générique, Genre/Tags et artistes,
+source inactive et XML brut avec champs non représentables conservés,
+dates/numéros invalides, XXE/DTD, limites, fixtures PNG via CoreGraphics/ImageIO,
+ZIP/CBZ via ZIPFoundation, manifest/XML exact, liens/traversées/doublons,
+archives chiffrées/tronquées/CRC, disque faible, images invalides, abandon et
+annulation avant/pendant flux, échec d’écriture/renommage/base, atomicité du
+dépôt, copie distincte, maintien des métadonnées et progression, licence MIT.
+Fixtures sous Caches/ImportTests-UUID, retirées à la fin de chaque test.
+Pas de nouveaux outils de test ni de scripts helper committés.
+
+Commandes macOS (Xcode et simulateur installés) :
+xcodebuild -resolvePackageDependencies -project ios/MangaiOS.xcodeproj \
+  -scheme MangaiOS
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS -showdestinations
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS \
+  -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO build
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS \
+  -destination 'platform=iOS Simulator,id=IDENTIFIANT_SIMULATEUR' \
+  -derivedDataPath ios/DerivedData -resultBundlePath ios/Etape3Results.xcresult \
+  CODE_SIGNING_ALLOWED=NO test
+Remplacer l’identifiant ; le chemin xcresult doit être absent.
+Tests ciblés possibles : -only-testing:MangaiOSTests/ImportPolicyTests
+  -only-testing:MangaiOSTests/LocalImportTests
+  -only-testing:MangaiOSTests/LibraryRepositoryTests
+  -only-testing:MangaiOSTests/LegalDocumentTests
+Le schéma partagé et les tests hébergés dans l’application sont préservés.
+Sous Linux : parse Swift de tous les fichiers, typecheck Foundation/XML
+portable et inspection du projet par xcodeproj ; aucun résultat XCTest
+Apple ni build iOS n’est annoncé.
+Correction ComicInfo : parse Swift de tous les fichiers et typecheck portable de
+LibraryDomain.swift, ImportPolicy.swift, ComicInfo.swift et ImportPolicyTests.swift
+effectués sous Linux avec Swift 6.4 ; git diff --check réussi. Aucun XCTest exécuté.

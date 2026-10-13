@@ -105,7 +105,10 @@ final class SwiftDataLibraryRepository: LibraryRepository {
     }
 
     func createSeries(_ input: NewSeries) throws -> SeriesSnapshot {
-        try transaction {
+        try transaction { try insertSeries(input) }
+    }
+
+    private func insertSeries(_ input: NewSeries) throws -> SeriesSnapshot {
             try input.metadata.validate()
             try LibraryIdentity.validateKey(input.sourceID)
             try LibraryIdentity.validateKey(input.sourceKey)
@@ -131,7 +134,6 @@ final class SwiftDataLibraryRepository: LibraryRepository {
             context.insert(preferences)
             value.preferences = preferences
             return try snapshot(value)
-        }
     }
 
     func series(id: UUID) throws -> SeriesSnapshot {
@@ -172,7 +174,25 @@ final class SwiftDataLibraryRepository: LibraryRepository {
     }
 
     func createChapter(_ input: NewChapter) throws -> ChapterSnapshot {
+        try transaction { try insertChapter(input) }
+    }
+
+    func commitImport(series: NewSeries?, chapter: NewChapter) throws -> ChapterSnapshot {
         try transaction {
+            if let series {
+                guard series.id == chapter.seriesID else {
+                    throw DomainError.invalidValue("série du chapitre importé")
+                }
+                if let cover = series.cover, chapter.files.contains(where: { $0.id == cover.id }) {
+                    throw DomainError.duplicate("fichier de couverture et de chapitre")
+                }
+                _ = try insertSeries(series)
+            }
+            return try insertChapter(chapter)
+        }
+    }
+
+    private func insertChapter(_ input: NewChapter) throws -> ChapterSnapshot {
             let parent = try storedSeries(input.seriesID)
             try LibraryIdentity.validateKey(input.key)
             guard input.order >= 0 else { throw DomainError.invalidValue("ordre") }
@@ -215,7 +235,6 @@ final class SwiftDataLibraryRepository: LibraryRepository {
                 page.file = files[inputPage.fileID]
             }
             return try snapshot(value)
-        }
     }
 
     func chapter(id: UUID) throws -> ChapterSnapshot {

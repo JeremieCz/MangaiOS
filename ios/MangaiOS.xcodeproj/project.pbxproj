@@ -7,11 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0207BB101AB735F8A0900981 /* LocalImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD1E3DB924C99E37D1205CF /* LocalImportService.swift */; };
+		039EDFEC43EC353E4019C30B /* ImportCommitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F063B2EAD1E4B1C7471242E0 /* ImportCommitter.swift */; };
 		0D6DDCCD1099A29B7084FB55 /* LibraryDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB65C407C3B7FF60F8BCA13 /* LibraryDomain.swift */; };
 		18CB9DB4F7E42A32398B50A9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE3D902C1C839D730E0B5774 /* Foundation.framework */; };
+		20DDCF0F5544E0214A444E1A /* LocalImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878AE34C1C6559EDE99E79BE /* LocalImportView.swift */; };
 		24C9ED1B466F2653631FEA03 /* LibraryDiskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BADC31CBCA0212B200C047 /* LibraryDiskTests.swift */; };
 		26D6544CCBE480DD76BCD318 /* StorageSchemaV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89CC715EFC01ECFFE723988 /* StorageSchemaV2.swift */; };
 		39673D137295560B671C5D6C /* NOTICE in Resources */ = {isa = PBXBuildFile; fileRef = A79A8E978C69F2C057802AAD /* NOTICE */; };
+		39A0863875F3C92007BFCA90 /* ImportPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6A297B51676632DAD13301 /* ImportPolicy.swift */; };
 		47A85320FB3EE2ABC7C2037F /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = F1DB033248C72C37527B20AD /* LICENSE */; };
 		6062AD889FDBA15DC49AE9DC /* StorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816C78D9CBEAB91C427B98AE /* StorageTests.swift */; };
 		66E9993E22874FF213DF4BDB /* LegalDocumentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1A4F00685789B3293ADB82 /* LegalDocumentTests.swift */; };
@@ -20,14 +24,20 @@
 		7577DDE5A6AA8D7EE2C7B7BF /* LegalNoticesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1BCE43870C4A706D470B46 /* LegalNoticesView.swift */; };
 		76C9792113D12FC3BB788357 /* LibraryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 727DC663ED82BC01BA0F8BFB /* LibraryRepository.swift */; };
 		7A4DDA5EC39FF706C709118C /* Source.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B486598D6D99B0B1232A11C /* Source.swift */; };
+		9EE08CB051626C0C04FD6EE2 /* ZIPFoundation-LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 4CF027B719F1EB4DA771D10F /* ZIPFoundation-LICENSE */; };
 		9EEE8C99A4CEDF1E04613514 /* LegalDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E672CD9BF904D923C92A487 /* LegalDocument.swift */; };
 		A266EFEDA8741F984CF6D9A7 /* StorageMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69B89450AE17EA263CFF6F1 /* StorageMetadata.swift */; };
 		A466FBB36AD413CB280EA8E0 /* LibraryRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2592B8D585361B88B05327A /* LibraryRepositoryTests.swift */; };
+		BD98DFEEF36AE61359A2AFC9 /* ComicInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F392A17C1D270BFB4D8B0042 /* ComicInfo.swift */; };
 		C4F6DED61AECFA2B3184764B /* LibraryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BD0362929BE85E19C9793B /* LibraryModels.swift */; };
+		CE0AAE8A15756236FAE3E018 /* ImportPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9728CA82853D86F0B96C250 /* ImportPolicyTests.swift */; };
+		CF3D7E0DABC29FAED1E3D2E0 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 183CDFC791267CB63058A8C4 /* ZIPFoundation */; };
 		E1E0DD88851460D917B46D4E /* MangaiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B9AF98E8915ED013303FEA5 /* MangaiOSApp.swift */; };
+		E957676DB83DEB70FD0B0D8B /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 9666553360043B3B6219C9CF /* ZIPFoundation */; };
 		EE7854AD27BD7B15571CBA81 /* LibraryDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38AC52DCBA3742C259BD376B /* LibraryDomainTests.swift */; };
 		FAA919BA7971DD1F94A7CFE0 /* LibraryPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8872D8A24FE8EB784D83EDC3 /* LibraryPlaceholderView.swift */; };
 		FE920E5353A204A0D1503CA4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE3D902C1C839D730E0B5774 /* Foundation.framework */; };
+		FF922C01DE26611F522DE17F /* LocalImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A217D56C327F7156C26712E /* LocalImportTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,11 +56,17 @@
 		2E672CD9BF904D923C92A487 /* LegalDocument.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalDocument.swift; sourceTree = "<group>"; };
 		38AC52DCBA3742C259BD376B /* LibraryDomainTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDomainTests.swift; sourceTree = "<group>"; };
 		42C8F0D0E114639C799958F2 /* Socle.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = Socle.txt; sourceTree = "<group>"; };
+		4CF027B719F1EB4DA771D10F /* ZIPFoundation-LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; path = "ZIPFoundation-LICENSE"; sourceTree = "<group>"; };
+		6489D708C7F22FBA9666386C /* Etape3.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = Etape3.txt; sourceTree = "<group>"; };
+		6D3130DDBA21626CA4BFD448 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		727DC663ED82BC01BA0F8BFB /* LibraryRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryRepository.swift; sourceTree = "<group>"; };
 		79BADC31CBCA0212B200C047 /* LibraryDiskTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDiskTests.swift; sourceTree = "<group>"; };
+		7A6A297B51676632DAD13301 /* ImportPolicy.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ImportPolicy.swift; sourceTree = "<group>"; };
 		816C78D9CBEAB91C427B98AE /* StorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageTests.swift; sourceTree = "<group>"; };
+		878AE34C1C6559EDE99E79BE /* LocalImportView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalImportView.swift; sourceTree = "<group>"; };
 		8872D8A24FE8EB784D83EDC3 /* LibraryPlaceholderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryPlaceholderView.swift; sourceTree = "<group>"; };
 		8B486598D6D99B0B1232A11C /* Source.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Source.swift; sourceTree = "<group>"; };
+		9A217D56C327F7156C26712E /* LocalImportTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalImportTests.swift; sourceTree = "<group>"; };
 		9B9AF98E8915ED013303FEA5 /* MangaiOSApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MangaiOSApp.swift; sourceTree = "<group>"; };
 		A6E526846C3BEAB195E8FFC4 /* StorageFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageFactory.swift; sourceTree = "<group>"; };
 		A79A8E978C69F2C057802AAD /* NOTICE */ = {isa = PBXFileReference; includeInIndex = 1; path = NOTICE; sourceTree = "<group>"; };
@@ -58,13 +74,17 @@
 		B69B89450AE17EA263CFF6F1 /* StorageMetadata.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StorageMetadata.swift; sourceTree = "<group>"; };
 		CAFC7E4944A1952A16AA08B2 /* SwiftDataLibraryRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftDataLibraryRepository.swift; sourceTree = "<group>"; };
 		CF1BCE43870C4A706D470B46 /* LegalNoticesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalNoticesView.swift; sourceTree = "<group>"; };
+		CFD1E3DB924C99E37D1205CF /* LocalImportService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalImportService.swift; sourceTree = "<group>"; };
 		D1035A179F2D49B4724CDDCF /* Etape2.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = Etape2.txt; sourceTree = "<group>"; };
 		DE1A4F00685789B3293ADB82 /* LegalDocumentTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalDocumentTests.swift; sourceTree = "<group>"; };
 		DE3D902C1C839D730E0B5774 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E2592B8D585361B88B05327A /* LibraryRepositoryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryRepositoryTests.swift; sourceTree = "<group>"; };
 		EDB65C407C3B7FF60F8BCA13 /* LibraryDomain.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDomain.swift; sourceTree = "<group>"; };
+		F063B2EAD1E4B1C7471242E0 /* ImportCommitter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ImportCommitter.swift; sourceTree = "<group>"; };
 		F1DB033248C72C37527B20AD /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		F392A17C1D270BFB4D8B0042 /* ComicInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ComicInfo.swift; sourceTree = "<group>"; };
 		F4BD0362929BE85E19C9793B /* LibraryModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryModels.swift; sourceTree = "<group>"; };
+		F9728CA82853D86F0B96C250 /* ImportPolicyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ImportPolicyTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +93,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FE920E5353A204A0D1503CA4 /* Foundation.framework in Frameworks */,
+				E957676DB83DEB70FD0B0D8B /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +102,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				18CB9DB4F7E42A32398B50A9 /* Foundation.framework in Frameworks */,
+				CF3D7E0DABC29FAED1E3D2E0 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,6 +129,11 @@
 		32C9AF72EAA68C856087A0F8 /* Import */ = {
 			isa = PBXGroup;
 			children = (
+				7A6A297B51676632DAD13301 /* ImportPolicy.swift */,
+				F392A17C1D270BFB4D8B0042 /* ComicInfo.swift */,
+				CFD1E3DB924C99E37D1205CF /* LocalImportService.swift */,
+				F063B2EAD1E4B1C7471242E0 /* ImportCommitter.swift */,
+				878AE34C1C6559EDE99E79BE /* LocalImportView.swift */,
 			);
 			name = Import;
 			path = Import;
@@ -126,6 +153,7 @@
 			children = (
 				42C8F0D0E114639C799958F2 /* Socle.txt */,
 				D1035A179F2D49B4724CDDCF /* Etape2.txt */,
+				6489D708C7F22FBA9666386C /* Etape3.txt */,
 			);
 			name = Documentation;
 			path = Documentation;
@@ -136,6 +164,7 @@
 			children = (
 				2E672CD9BF904D923C92A487 /* LegalDocument.swift */,
 				CF1BCE43870C4A706D470B46 /* LegalNoticesView.swift */,
+				4CF027B719F1EB4DA771D10F /* ZIPFoundation-LICENSE */,
 			);
 			name = Resources;
 			path = Resources;
@@ -171,6 +200,8 @@
 				38AC52DCBA3742C259BD376B /* LibraryDomainTests.swift */,
 				E2592B8D585361B88B05327A /* LibraryRepositoryTests.swift */,
 				79BADC31CBCA0212B200C047 /* LibraryDiskTests.swift */,
+				F9728CA82853D86F0B96C250 /* ImportPolicyTests.swift */,
+				9A217D56C327F7156C26712E /* LocalImportTests.swift */,
 			);
 			name = Tests;
 			path = Tests;
@@ -180,6 +211,7 @@
 			isa = PBXGroup;
 			children = (
 				9B9AF98E8915ED013303FEA5 /* MangaiOSApp.swift */,
+				6D3130DDBA21626CA4BFD448 /* Info.plist */,
 			);
 			name = Application;
 			path = Application;
@@ -264,6 +296,9 @@
 			dependencies = (
 			);
 			name = MangaiOS;
+			packageProductDependencies = (
+				9666553360043B3B6219C9CF /* ZIPFoundation */,
+			);
 			productName = MangaiOS;
 			productReference = 241615AB665249D4675EC29A /* MangaiOS.app */;
 			productType = "com.apple.product-type.application";
@@ -282,6 +317,9 @@
 				F9EA64C3DE30C8831ABE799D /* PBXTargetDependency */,
 			);
 			name = MangaiOSTests;
+			packageProductDependencies = (
+				183CDFC791267CB63058A8C4 /* ZIPFoundation */,
+			);
 			productName = MangaiOSTests;
 			productReference = 29E429CDD5781D2E4F4BD846 /* MangaiOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -305,6 +343,9 @@
 			);
 			mainGroup = F13136EE8F945D9FB1C64DD1;
 			minimizedProjectReferenceProxies = 0;
+			packageReferences = (
+				4F7675209B7BD08046386DB9 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+			);
 			preferredProjectObjectVersion = 100;
 			productRefGroup = 1EF6D741C4D8EE9E28014C42 /* Products */;
 			projectDirPath = "";
@@ -323,6 +364,7 @@
 			files = (
 				47A85320FB3EE2ABC7C2037F /* LICENSE in Resources */,
 				39673D137295560B671C5D6C /* NOTICE in Resources */,
+				9EE08CB051626C0C04FD6EE2 /* ZIPFoundation-LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,6 +387,8 @@
 				EE7854AD27BD7B15571CBA81 /* LibraryDomainTests.swift in Sources */,
 				A466FBB36AD413CB280EA8E0 /* LibraryRepositoryTests.swift in Sources */,
 				24C9ED1B466F2653631FEA03 /* LibraryDiskTests.swift in Sources */,
+				CE0AAE8A15756236FAE3E018 /* ImportPolicyTests.swift in Sources */,
+				FF922C01DE26611F522DE17F /* LocalImportTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -364,6 +408,11 @@
 				C4F6DED61AECFA2B3184764B /* LibraryModels.swift in Sources */,
 				26D6544CCBE480DD76BCD318 /* StorageSchemaV2.swift in Sources */,
 				72BEACCF3632556F87463E06 /* SwiftDataLibraryRepository.swift in Sources */,
+				39A0863875F3C92007BFCA90 /* ImportPolicy.swift in Sources */,
+				BD98DFEEF36AE61359A2AFC9 /* ComicInfo.swift in Sources */,
+				0207BB101AB735F8A0900981 /* LocalImportService.swift in Sources */,
+				039EDFEC43EC353E4019C30B /* ImportCommitter.swift in Sources */,
+				20DDCF0F5544E0214A444E1A /* LocalImportView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -389,6 +438,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_TESTABILITY = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Application/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MangaiOS;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -419,6 +469,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Application/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MangaiOS;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -629,6 +680,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4F7675209B7BD08046386DB9 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = exactVersion;
+				version = 0.9.20;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		183CDFC791267CB63058A8C4 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4F7675209B7BD08046386DB9 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+		9666553360043B3B6219C9CF /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4F7675209B7BD08046386DB9 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 05EC38FDDCF4F9D9F7C515F3 /* Project object */;
 }

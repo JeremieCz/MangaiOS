@@ -83,7 +83,7 @@ enum LocalFileKind: String, Codable, CaseIterable, Sendable {
     case image, archive, document
 }
 
-struct SeriesMetadata: Equatable, Sendable {
+struct SeriesMetadata: Equatable, Codable, Sendable {
     var title: String
     var authors: [String] = []
     var artists: [String] = []

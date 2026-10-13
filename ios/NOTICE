@@ -21,3 +21,10 @@ Le fichier .gitignore a été complété pour les fichiers locaux Xcode.
 Les sources Android, leurs attributions et le fichier LICENSE sont inchangés.
 
 Cette notice est informative et ne modifie pas les conditions de la licence.
+
+Étape 3 : import local natif ; ZIPFoundation 0.9.20 (MIT) est lié via SwiftPM.
+Copyright (c) 2017-2025 Thomas Zoechling (https://www.peakstep.com).
+Licence intégrale vérifiée depuis le tag 0.9.20 :
+https://github.com/weichsel/ZIPFoundation/blob/0.9.20/LICENSE
+Elle est embarquée sans modification sous ZIPFoundation-LICENSE et accessible
+dans les mentions légales. Aucun NOTICE amont supplémentaire n’est inventé.

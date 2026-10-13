@@ -188,3 +188,7 @@ Android n’est annoncé. Les cinq modes ont la même intention fonctionnelle,
 mais pas de moteur de rendu. L’import (dont ComicInfo), la résolution des
 fichiers, les archives, l’interface de bibliothèque, le lecteur et les
 sauvegardes restent différés. Le protocole Source reste sans implémentation.
+
+Suite : l’import local et ComicInfo sont désormais décrits dans Etape3.txt ;
+le schéma V2 reste inchangé. L’interface bibliothèque et le lecteur restent
+différés ; Source reste sans implémentation.

@@ -9,6 +9,8 @@ protocol LibraryRepository {
     func setFavorite(id: UUID, at date: Date?) throws
     func deleteSeries(id: UUID) throws
     func createChapter(_ input: NewChapter) throws -> ChapterSnapshot
+    /// La série facultative et son chapitre sont sauvegardés dans une seule transaction.
+    func commitImport(series: NewSeries?, chapter: NewChapter) throws -> ChapterSnapshot
     func chapter(id: UUID) throws -> ChapterSnapshot
     func deleteChapter(id: UUID) throws
     func setRead(chapterID: UUID, isRead: Bool) throws

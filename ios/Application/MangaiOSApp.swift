@@ -2,19 +2,29 @@ import SwiftData
 import SwiftUI
 
 @main
+@MainActor
 struct MangaiOSApp: App {
-    private let storage: Result<ModelContainer, Error>
+    private struct Dependencies {
+        let container: ModelContainer
+        let repository: SwiftDataLibraryRepository
+        let importer: LocalImportService
+    }
+    private let storage: Result<Dependencies, Error>
 
     init() {
-        storage = Result { try StorageFactory.makeContainer() }
+        storage = Result {
+            let container = try StorageFactory.makeContainer()
+            return Dependencies(container: container, repository: try SwiftDataLibraryRepository(container: container),
+                                importer: LocalImportService(root: try LocalImportService.defaultRoot()))
+        }
     }
 
     var body: some Scene {
         WindowGroup {
             switch storage {
-            case .success(let container):
-                LibraryPlaceholderView()
-                    .modelContainer(container)
+            case .success(let dependencies):
+                LibraryPlaceholderView(repository: dependencies.repository, importer: dependencies.importer)
+                    .modelContainer(dependencies.container)
             case .failure:
                 ContentUnavailableView(
                     "Stockage indisponible",
