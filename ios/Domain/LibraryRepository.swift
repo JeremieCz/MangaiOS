@@ -16,6 +16,8 @@ protocol LibraryRepository {
     func setRead(chapterID: UUID, isRead: Bool) throws
     func setBookmark(chapterID: UUID, isBookmarked: Bool) throws
     func recordProgress(chapterID: UUID, pageIndex: Int, duration: TimeInterval, at date: Date) throws
+    func recordReaderProgress(chapterID: UUID, pageIndex: Int, duration: TimeInterval, at date: Date,
+                              completed: Bool) throws
     func categories() throws -> [CategorySnapshot]
     func createCategory(id: UUID, name: String) throws -> CategorySnapshot
     func renameCategory(id: UUID, name: String) throws
@@ -27,4 +29,13 @@ protocol LibraryRepository {
     func setSeriesPreferences(seriesID: UUID, value: SeriesReadingPreferences) throws
     func resolvedPreferences(seriesID: UUID) throws -> ReadingPreferences
     func history() throws -> [HistorySnapshot]
+}
+
+extension LibraryRepository {
+    func recordReaderProgress(chapterID: UUID, pageIndex: Int, duration: TimeInterval, at date: Date,
+                              completed: Bool) throws {
+        let wasRead = try chapter(id: chapterID).isRead
+        try recordProgress(chapterID: chapterID, pageIndex: pageIndex, duration: duration, at: date)
+        if !completed && !wasRead { try setRead(chapterID: chapterID, isRead: false) }
+    }
 }

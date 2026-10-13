@@ -258,6 +258,12 @@ final class SwiftDataLibraryRepository: LibraryRepository {
     }
 
     func recordProgress(chapterID: UUID, pageIndex: Int, duration: TimeInterval, at date: Date) throws {
+        try recordReaderProgress(chapterID: chapterID, pageIndex: pageIndex, duration: duration, at: date,
+                                 completed: true)
+    }
+
+    func recordReaderProgress(chapterID: UUID, pageIndex: Int, duration: TimeInterval, at date: Date,
+                              completed: Bool) throws {
         try transaction {
             try validateDate(date)
             guard duration.isFinite, duration >= 0 else { throw DomainError.invalidValue("durée") }
@@ -268,7 +274,7 @@ final class SwiftDataLibraryRepository: LibraryRepository {
             let total = (value.history?.duration ?? 0) + duration
             guard total.isFinite else { throw DomainError.invalidValue("durée cumulée") }
             value.lastPageIndex = pageIndex
-            if pageIndex == value.pages.count - 1 { value.isRead = true }
+            if completed && pageIndex == value.pages.count - 1 { value.isRead = true }
             if let history = value.history {
                 history.duration = total
                 // Un événement ancien contribue à la durée, sans reculer la date agrégée.

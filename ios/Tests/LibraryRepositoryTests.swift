@@ -5,6 +5,23 @@ import XCTest
 
 final class LibraryRepositoryTests: XCTestCase {
     @MainActor
+    func testReaderPartialLastPagePersistsWithoutMarkingRead() throws {
+        let repo = try repository()
+        let series = try repo.createSeries(seriesInput())
+        let chapter = try repo.createChapter(chapterInput(seriesID: series.id))
+        try repo.recordReaderProgress(chapterID: chapter.id, pageIndex: 2, duration: 4,
+                                      at: Date(), completed: false)
+        XCTAssertFalse(try repo.chapter(id: chapter.id).isRead)
+        XCTAssertEqual(try repo.chapter(id: chapter.id).lastPageIndex, 2)
+        try repo.recordReaderProgress(chapterID: chapter.id, pageIndex: 2, duration: 2,
+                                      at: Date(), completed: true)
+        XCTAssertTrue(try repo.chapter(id: chapter.id).isRead)
+        try repo.recordReaderProgress(chapterID: chapter.id, pageIndex: 0, duration: 1,
+                                      at: Date(), completed: false)
+        XCTAssertTrue(try repo.chapter(id: chapter.id).isRead)
+        XCTAssertEqual(try repo.chapter(id: chapter.id).history?.duration, 7)
+    }
+    @MainActor
     private func repository() throws -> SwiftDataLibraryRepository {
         try SwiftDataLibraryRepository(container: StorageFactory.makeContainer(inMemory: true))
     }

@@ -8,14 +8,16 @@ struct MangaiOSApp: App {
         let container: ModelContainer
         let repository: SwiftDataLibraryRepository
         let importer: LocalImportService
+        let root: URL
     }
     private let storage: Result<Dependencies, Error>
 
     init() {
         storage = Result {
             let container = try StorageFactory.makeContainer()
+            let root = try LocalImportService.defaultRoot()
             return Dependencies(container: container, repository: try SwiftDataLibraryRepository(container: container),
-                                importer: LocalImportService(root: try LocalImportService.defaultRoot()))
+                                importer: LocalImportService(root: root), root: root)
         }
     }
 
@@ -23,7 +25,7 @@ struct MangaiOSApp: App {
         WindowGroup {
             switch storage {
             case .success(let dependencies):
-                LibraryPlaceholderView(repository: dependencies.repository, importer: dependencies.importer)
+                LibraryPlaceholderView(repository: dependencies.repository, importer: dependencies.importer, root: dependencies.root)
                     .modelContainer(dependencies.container)
             case .failure:
                 ContentUnavailableView(

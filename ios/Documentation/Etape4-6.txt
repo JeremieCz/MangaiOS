@@ -1,0 +1,107 @@
+ÉTAPES 4, 5 ET 6 — BIBLIOTHÈQUE ET LECTURE LOCALES
+
+Bibliothèque
+Les onglets Bibliothèque, Historique et Réglages utilisent le même modèle
+observable et le même dépôt SwiftData que l’import. La bibliothèque utilise
+NavigationStack sur iPhone et NavigationSplitView en largeur régulière sur iPad.
+Recherche de titre, tri stable (titre, lecture récente, nombre de non lus),
+filtre de catégorie et filtre des séries favorites. Les compteurs distinguent
+lus, non lus et signets. Miniature de couverture ou première page ; icône si
+l’image manque. Le retour dans la bibliothèque et la fermeture de la feuille
+d’import rechargent les instantanés.
+
+Les détails permettent de modifier titre, auteurs, artistes, genres, statut,
+résumé, notes personnelles et note sur dix sans remplacer les modifications
+personnelles lors d’un nouvel import dans la même série. Ajouter/retirer une
+série de la bibliothèque ne supprime aucun fichier. Les catégories personnelles
+peuvent être créées, renommées, supprimées et réellement réordonnées dans le
+dépôt. La catégorie système reste protégée. Les associations sont éditables
+dans chaque série. Reprendre privilégie le chapitre non lu récemment commencé,
+puis le premier non lu, puis le premier chapitre disponible.
+
+L’historique ouvre le chapitre à sa progression persistée. Les réglages globaux
+et les surcharges par série exposent les cinq modes, les trois politiques de
+doubles pages et l’isolation de la couverture, avec héritage indépendant.
+
+Lecteur
+SwiftUI héberge UIScrollView : horizontal gauche-droite ou droite-gauche,
+vertical paginé, webtoon sans espace et vertical continu avec espace de 12 pt.
+Le pinch, le double tap et le déplacement permettent le zoom : par unité dans
+les modes paginés, sur le contenu complet dans les modes continus. Un tap simple
+cache/affiche les commandes ; curseur de page logique, indicateur et navigation
+entre chapitres permettent la lecture effective des chapitres importés.
+Fond noir, commandes sombres, libellés accessibles et polices système.
+
+Seuls les fichiers image du chapitre référencés par ses pages sont ouverts ;
+une entrée d’archive/document directe est refusée. Les chemins relatifs sont
+validés puis confinés à la racine privée ; tout lien symbolique dans le chemin
+relatif est refusé. Le dépôt reste la source de l’ordre des pages, et non une
+énumération libre du disque.
+
+ImageIO décode hors MainActor et sous-échantillonne à 4096 pixels au maximum
+sur la plus grande dimension. Le cache d’images décodées est un LRU borné à
+64 Mio, sans cache de miniatures. Les vues proches du viewport conservent leurs
+images séparément : 64 Mio borne le cache, pas toute la mémoire du processus.
+Les avertissements mémoire vident le cache et les vues non actives. Les images
+plus grandes perdent donc du détail au zoom, volontairement. Une page corrompue
+affiche une erreur et Réessayer ; elle ne valide jamais sa progression.
+
+Doubles pages et progression
+Désactivées : une image par unité. Automatiques : paires en paysage.
+Toujours : paires également en portrait. Les modes continus restent simples.
+Couverture isolée si demandé, panorama entier isolé, fin impaire seule.
+En droite-gauche les images d’une paire et les moitiés d’un panorama sont
+ordonnées à droite puis à gauche.
+
+Le commutateur « Séparer les panoramas (session) » découpe les images plus
+larges que hautes dans les modes paginés. Ce choix est uniquement en mémoire :
+aucun champ n’est ajouté au schéma V2. Les unités visuelles gardent les indices
+logiques des images originales. Reprendre/rotation retrouvent l’unité contenant
+l’indice enregistré ; reprendre un panorama revient à sa première moitié.
+Le dernier indice d’une paire est validé seulement après décodage des deux
+images. La première moitié du dernier panorama peut enregistrer la dernière
+page sans marquer le chapitre lu ; seule la seconde moitié le termine.
+L’API recordReaderProgress réalise ceci atomiquement dans SwiftData et conserve
+le caractère monotone de « lu ». recordProgress garde sa sémantique antérieure
+et ses unités : indice zéro-based et durée TimeInterval en secondes.
+
+En continu la page active est calculée à partir du centre du viewport réel,
+y compris après zoom, et non via l’apparition de vues préchargées. Un indice
+n’est accepté qu’après décodage. Sauvegarde temporisée de 600 ms ; fermeture,
+changement de chapitre et passage en arrière-plan vident immédiatement la
+progression et la durée accumulées. Les secondes déjà vidées ne sont pas
+ajoutées une deuxième fois ; l’arrière-plan ne contribue pas à la durée.
+Une erreur de sauvegarde reste visible et permet de réessayer.
+
+Validation
+21 nouveaux XCTest, soit 73 méthodes de test au total : filtres, tri, compteurs,
+reprise, mappings LTR/RTL/vertical, paires, impairs, couverture, panoramas,
+rotation, viewport, durée sans double comptage, chemins et liens symboliques,
+budget et sous-échantillonnage ImageIO, corruption et transaction de fin.
+Sur Linux : analyse syntaxique de tous les Swift ; typecheck des helpers et
+de leurs XCTest portables ; 22 XCTest exécutés avec succès (4 domaine existants,
+5 bibliothèque et 13 disposition/progression). Aucun SDK iOS ni xcodebuild
+n’est disponible ; ces contrôles ne constituent pas une compilation SwiftUI,
+UIKit ou SwiftData. La validation automatique de revue n’est pas disponible
+dans cet environnement ; CodeQL Swift n’a pas pu créer sa base (SDK absent).
+
+À exécuter sur Mac, avec un simulateur installé :
+xcodebuild -list -project ios/MangaiOS.xcodeproj
+xcodebuild -showdestinations -project ios/MangaiOS.xcodeproj -scheme MangaiOS
+xcodebuild test -project ios/MangaiOS.xcodeproj -scheme MangaiOS \
+  -destination 'platform=iOS Simulator,id=<UUID du simulateur>' \
+  -only-testing:MangaiOSTests/LibraryPresentationTests \
+  -only-testing:MangaiOSTests/ReaderLayoutTests \
+  -only-testing:MangaiOSTests/ReaderImageTests \
+  -only-testing:MangaiOSTests/LibraryRepositoryTests
+
+QA physique iPhone/iPad encore requise : import puis ouverture réelle,
+gestes imbriqués/zoom et rotation dans les cinq modes, largeur partagée iPad,
+VoiceOver et grands caractères, miniatures absentes, dernière paire et
+panorama final corrompus, page très haute, arrière-plan/retour/fermeture,
+mémoire sous pression et persistance après relance.
+
+Android, LICENSE, schémas V1/V2 et XCTest hébergés restent inchangés.
+ZIPFoundation reste exactement en version 0.9.20. Aucune dépendance ajoutée.
+Sauvegardes, incognito et lecture directe d’archives ne font pas partie de
+ces étapes. Aucun harnais UI ni script de validation n’est ajouté au dépôt.
