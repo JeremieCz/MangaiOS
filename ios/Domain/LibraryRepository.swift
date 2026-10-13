@@ -2,6 +2,8 @@ import Foundation
 
 @MainActor
 protocol LibraryRepository {
+    func exportSnapshot() throws -> LibraryBackupSnapshot
+    func replaceSnapshot(_ snapshot: LibraryBackupSnapshot) throws
     func series(id: UUID) throws -> SeriesSnapshot
     func allSeries(inLibraryOnly: Bool) throws -> [SeriesSnapshot]
     func createSeries(_ input: NewSeries) throws -> SeriesSnapshot

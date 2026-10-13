@@ -74,7 +74,20 @@ actor LocalImportService {
         try ImportPolicy.requireSpace(available: available, needed: bytes, reserve: limits.reserveBytes)
     }
 
-    func prepare(source: URL, progress: @Sendable (ImportProgress) -> Void = { _ in }) throws -> PreparedImport {
+    func prepare(source: URL, progress: @Sendable (ImportProgress) -> Void = { _ in }) async throws -> PreparedImport {
+        let lease = UUID()
+        try await MutationGate.beginImport(lease, root: root)
+        do {
+            let value = try prepareReserved(source: source, id: lease, progress: progress)
+            return value
+        } catch {
+            await MutationGate.endImport(lease)
+            throw error
+        }
+    }
+
+    private func prepareReserved(source: URL, id: UUID,
+                                 progress: @Sendable (ImportProgress) -> Void) throws -> PreparedImport {
         try Task.checkCancellation()
         guard limits.entries > 0, limits.pages > 0, limits.fileBytes > 0,
               limits.totalBytes > 0, limits.archiveBytes > 0, limits.xmlBytes > 0,
@@ -83,7 +96,6 @@ actor LocalImportService {
         }
         try manager.createDirectory(at: root, withIntermediateDirectories: true)
         try space(0)
-        let id = UUID()
         let directory = staging(id)
         try manager.createDirectory(at: directory, withIntermediateDirectories: true)
         let scoped = source.startAccessingSecurityScopedResource()
@@ -113,10 +125,11 @@ actor LocalImportService {
         catch { throw ImportFailure.cleanup(original?.localizedDescription ?? "Import annulé", error.localizedDescription) }
     }
 
-    func discard(_ prepared: PreparedImport) throws {
+    func discard(_ prepared: PreparedImport) async throws {
         guard preparedIDs.contains(prepared.id) else { return }
         try remove(staging(prepared.id))
         preparedIDs.remove(prepared.id)
+        await MutationGate.endImport(prepared.id)
     }
 
     func install(_ prepared: PreparedImport) throws {
@@ -130,14 +143,16 @@ actor LocalImportService {
         installedIDs.insert(prepared.id)
     }
 
-    func rollbackInstall(_ prepared: PreparedImport, original: Error) throws {
+    func rollbackInstall(_ prepared: PreparedImport, original: Error) async throws {
         guard installedIDs.contains(prepared.id) else { return }
         try remove(destination(prepared.id), original: original)
         installedIDs.remove(prepared.id)
+        await MutationGate.endImport(prepared.id)
     }
 
-    func acknowledge(_ prepared: PreparedImport) {
+    func acknowledge(_ prepared: PreparedImport) async {
         installedIDs.remove(prepared.id)
+        await MutationGate.endImport(prepared.id)
     }
 
     func isPrepared(_ prepared: PreparedImport) -> Bool {

@@ -9,6 +9,7 @@ struct MangaiOSApp: App {
         let repository: SwiftDataLibraryRepository
         let importer: LocalImportService
         let root: URL
+        let recoveryWarning: String?
     }
     private let storage: Result<Dependencies, Error>
 
@@ -16,8 +17,10 @@ struct MangaiOSApp: App {
         storage = Result {
             let container = try StorageFactory.makeContainer()
             let root = try LocalImportService.defaultRoot()
-            return Dependencies(container: container, repository: try SwiftDataLibraryRepository(container: container),
-                                importer: LocalImportService(root: root), root: root)
+            let repository = try SwiftDataLibraryRepository(container: container)
+            let warning = try LibraryBackupService(root: root).recover(repository: repository)
+            return Dependencies(container: container, repository: repository,
+                                importer: LocalImportService(root: root), root: root, recoveryWarning: warning)
         }
     }
 
@@ -25,17 +28,22 @@ struct MangaiOSApp: App {
         WindowGroup {
             switch storage {
             case .success(let dependencies):
-                LibraryPlaceholderView(repository: dependencies.repository, importer: dependencies.importer, root: dependencies.root)
+                LibraryPlaceholderView(repository: dependencies.repository, importer: dependencies.importer,
+                                       root: dependencies.root, initialError: dependencies.recoveryWarning)
                     .modelContainer(dependencies.container)
             case .failure:
-                ContentUnavailableView(
-                    "Stockage indisponible",
-                    systemImage: "externaldrive.badge.exclamationmark",
-                    description: Text(
-                        "Impossible d’ouvrir les données locales. Aucune donnée n’a été effacée. "
-                        + "Relancez l’application après avoir vérifié l’espace disponible."
+                VStack {
+                    ContentUnavailableView(
+                        "Stockage indisponible",
+                        systemImage: "externaldrive.badge.exclamationmark",
+                        description: Text(
+                            "Impossible d’ouvrir ou de réconcilier les données locales. "
+                            + "Les copies de sécurité sont conservées. Relancez l’application "
+                            + "après avoir vérifié l’espace disponible."
+                        )
                     )
-                )
+                    BackupRecoveryFilesView().padding()
+                }
             }
         }
     }

@@ -152,14 +152,14 @@ struct NewChapter: Sendable {
     var pages: [LocalPageInput] = []
 }
 
-struct FileSnapshot: Equatable, Sendable {
+struct FileSnapshot: Equatable, Codable, Sendable {
     let id: UUID
     let path: RelativePath
     let kind: LocalFileKind
     let byteCount: Int64?
 }
 
-struct PageSnapshot: Equatable, Sendable {
+struct PageSnapshot: Equatable, Codable, Sendable {
     let id: UUID
     let index: Int
     let fileID: UUID
@@ -168,7 +168,7 @@ struct PageSnapshot: Equatable, Sendable {
     let height: Int?
 }
 
-struct HistorySnapshot: Equatable, Sendable {
+struct HistorySnapshot: Equatable, Codable, Sendable {
     let id: UUID
     let chapterID: UUID
     let lastReadAt: Date
@@ -176,7 +176,7 @@ struct HistorySnapshot: Equatable, Sendable {
     let duration: TimeInterval
 }
 
-struct ChapterSnapshot: Equatable, Sendable {
+struct ChapterSnapshot: Equatable, Codable, Sendable {
     let id: UUID
     let seriesID: UUID
     let key: String
@@ -192,7 +192,7 @@ struct ChapterSnapshot: Equatable, Sendable {
     var pageCount: Int { pages.count }
 }
 
-struct SeriesSnapshot: Equatable, Sendable {
+struct SeriesSnapshot: Equatable, Codable, Sendable {
     let id: UUID
     let sourceID: String
     let sourceKey: String
@@ -205,7 +205,7 @@ struct SeriesSnapshot: Equatable, Sendable {
     var isInLibrary: Bool { favoriteAt != nil }
 }
 
-struct CategorySnapshot: Equatable, Sendable {
+struct CategorySnapshot: Equatable, Codable, Sendable {
     let id: UUID
     let name: String
     let order: Int

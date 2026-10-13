@@ -7,6 +7,7 @@ struct ReaderCanvas: UIViewRepresentable {
     let preferences: ReadingPreferences
     let splitPanoramas: Bool
     let root: URL
+    let generation: UUID
     let page: Int
     let onVisible: (Int, Bool) -> Void
     let onTap: () -> Void
@@ -14,7 +15,8 @@ struct ReaderCanvas: UIViewRepresentable {
     func makeUIView(context: Context) -> ReaderCanvasView { ReaderCanvasView() }
     func updateUIView(_ view: ReaderCanvasView, context: Context) {
         view.onVisible = onVisible; view.onTap = onTap
-        view.configure(chapter: chapter, preferences: preferences, split: splitPanoramas, root: root, page: page)
+        view.configure(chapter: chapter, preferences: preferences, split: splitPanoramas,
+                       root: root, generation: generation, page: page)
     }
     static func dismantleUIView(_ view: ReaderCanvasView, coordinator: ()) { view.dispose() }
 }
@@ -27,6 +29,7 @@ final class ReaderCanvasView: UIView, UIScrollViewDelegate {
     private var chapter: ChapterSnapshot?
     private var preferences = ReadingPreferences()
     private var root: URL?
+    private var generation = UUID()
     private var split = false
     private var units: [ReaderUnit] = []
     private var cells: [Int: ReaderZoomView] = [:]
@@ -82,9 +85,12 @@ final class ReaderCanvasView: UIView, UIScrollViewDelegate {
     }
     func viewForZooming(in scrollView: UIScrollView) -> UIView? { continuous ? canvasContent : nil }
 
-    func configure(chapter: ChapterSnapshot, preferences: ReadingPreferences, split: Bool, root: URL, page: Int) {
-        let rebuild = self.chapter?.id != chapter.id || self.preferences != preferences || self.split != split
+    func configure(chapter: ChapterSnapshot, preferences: ReadingPreferences, split: Bool,
+                   root: URL, generation: UUID, page: Int) {
+        let rebuild = self.chapter?.id != chapter.id || self.preferences != preferences
+            || self.split != split || self.generation != generation
         self.chapter = chapter; self.preferences = preferences; self.split = split; self.root = root
+        self.generation = generation
         if rebuild {
             self.page = page
             lastSize = .zero
@@ -199,12 +205,13 @@ final class ReaderCanvasView: UIView, UIScrollViewDelegate {
         tasks[index]?.cancel()
         cells[index]?.showLoading()
         let unit = units[index]
+        let generation = self.generation
         tasks[index] = Task { [weak self] in
             do {
                 var images: [UIImage] = []
                 for part in unit.parts {
                     let file = try ReaderFiles.image(chapter: chapter, page: part.page)
-                    let decoded = try await ReaderImages.shared.load(root: root, file: file)
+                    let decoded = try await ReaderImages.shared.load(root: root, file: file, generation: generation)
                     try Task.checkCancellation()
                     var image = decoded.image
                     if let half = part.half, let cg = image.cgImage {

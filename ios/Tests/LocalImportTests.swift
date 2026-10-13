@@ -423,12 +423,21 @@ final class LocalImportTests: XCTestCase {
 }
 
 @MainActor
-private final class FailingImportRepository: LibraryRepository {
+final class FailingImportRepository: LibraryRepository {
     let base: SwiftDataLibraryRepository
     let cancelAfterSave: Bool
+    var failNextReplacement = false
     init(base: SwiftDataLibraryRepository, cancelAfterSave: Bool = false) {
         self.base = base
         self.cancelAfterSave = cancelAfterSave
+    }
+    func exportSnapshot() throws -> LibraryBackupSnapshot { try base.exportSnapshot() }
+    func replaceSnapshot(_ snapshot: LibraryBackupSnapshot) throws {
+        if failNextReplacement {
+            failNextReplacement = false
+            throw DomainError.invalidValue("échec de remplacement simulé")
+        }
+        try base.replaceSnapshot(snapshot)
     }
     func commitImport(series: NewSeries?, chapter: NewChapter) throws -> ChapterSnapshot {
         if cancelAfterSave {

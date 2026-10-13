@@ -13,9 +13,13 @@ final class DecodedPage: @unchecked Sendable {
 }
 
 actor ReaderImages {
+    private struct CacheKey: Hashable {
+        let url: URL
+        let generation: UUID?
+    }
     static let shared = ReaderImages()
-    private var cache: [URL: DecodedPage] = [:]
-    private var order: [URL] = []
+    private var cache: [CacheKey: DecodedPage] = [:]
+    private var order: [CacheKey] = []
     private var cost = 0
     var cachedByteCount: Int { cost }
 
@@ -25,12 +29,14 @@ actor ReaderImages {
         cost = 0
     }
 
-    func load(root: URL, file: FileSnapshot, maximumDimension: Int = ReaderImageBudget.maximumDimension) throws -> DecodedPage {
+    func load(root: URL, file: FileSnapshot, maximumDimension: Int = ReaderImageBudget.maximumDimension,
+              generation: UUID? = nil) throws -> DecodedPage {
         guard file.kind == .image else { throw DomainError.invalidValue("image") }
         let url = try ReaderFiles.resolve(root: root, path: file.path)
+        let key = CacheKey(url: url, generation: generation)
         // Les miniatures ne polluent pas le cache du lecteur.
-        if maximumDimension == ReaderImageBudget.maximumDimension, let hit = cache[url] {
-            order.removeAll { $0 == url }; order.append(url)
+        if maximumDimension == ReaderImageBudget.maximumDimension, let hit = cache[key] {
+            order.removeAll { $0 == key }; order.append(key)
             return hit
         }
         try Task.checkCancellation()
@@ -47,15 +53,17 @@ actor ReaderImages {
                 order.removeFirst()
                 cost -= cache.removeValue(forKey: first)?.cost ?? 0
             }
-            cache[url] = decoded; order.append(url); cost += decoded.cost
+            cache[key] = decoded; order.append(key); cost += decoded.cost
         }
         return decoded
     }
 }
 
+@MainActor
 struct CoverThumbnail: View {
     let series: SeriesSnapshot
     let root: URL
+    let generation: UUID
     @State private var image: UIImage?
 
     private var file: FileSnapshot? {
@@ -72,10 +80,11 @@ struct CoverThumbnail: View {
         }
         .frame(width: 56, height: 80)
         .accessibilityHidden(true)
-        .task(id: file?.id) {
+        .task(id: "\(file?.id.uuidString ?? ""):\(generation.uuidString)") {
             image = nil
             guard let file else { return }
-            if let value = try? await ReaderImages.shared.load(root: root, file: file, maximumDimension: 256),
+            if let value = try? await ReaderImages.shared.load(root: root, file: file, maximumDimension: 256,
+                                                              generation: generation),
                !Task.isCancelled { image = value.image }
         }
     }

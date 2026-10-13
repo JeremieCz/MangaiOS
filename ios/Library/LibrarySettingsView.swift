@@ -24,6 +24,7 @@ struct LibrarySettingsView: View {
                 }))
             }
             NavigationLink("Gérer les catégories") { CategoryManagerView(model: model) }
+            NavigationLink("Sauvegarde et restauration") { LibraryBackupView(model: model) }
             NavigationLink("Mentions légales") { LegalNoticesView() }
         }.navigationTitle("Réglages")
     }

@@ -12,6 +12,7 @@ enum ImportCommitter {
     static func commit(_ prepared: PreparedImport, target: ImportTarget, allowDuplicate: Bool = false,
                        repository: any LibraryRepository, service: LocalImportService) async throws -> ChapterSnapshot {
         try Task.checkCancellation()
+        try MutationGate.requireWritable()
         guard active.insert(prepared.id).inserted else { throw ImportFailure.rejected("import déjà en cours") }
         defer { active.remove(prepared.id) }
         let series: NewSeries?

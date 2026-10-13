@@ -1,0 +1,144 @@
+Étape 7 — Sauvegarde et restauration manuelles iOS
+================================================
+
+Utilisation
+-----------
+Réglages > Sauvegarde et restauration :
+« Exporter une sauvegarde ZIP » écrit une archive complète dans Fichiers.
+« Choisir une sauvegarde à restaurer » vérifie et prépare une copie privée,
+affiche les nombres de séries, chapitres, catégories et fichiers et la date.
+« Annuler la préparation » supprime uniquement cette préparation.
+« Remplacer toutes les données » exige ensuite « Confirmer : remplacer ».
+Il s’agit d’un remplacement intégral, jamais d’une fusion.
+Les originaux externes restent intacts.
+
+Une archive Securite.zip de l’état précédent est conservée dans
+Application Support/MangaiOS/BackupRecovery/<UUID>/ et peut être partagée
+depuis cette même interface. Pour revenir en arrière : partager dans Fichiers,
+puis choisir cette archive à restaurer. Ces sécurités ne sont jamais purgées
+automatiquement ; leur taille doit être prise en compte sur le disque.
+L’export privé est supprimé à la fin du dialogue d’export (succès ou annulation).
+
+Format public v1
+---------------
+ZIP classique : entrée manifest.json UTF-8 JSON et fichiers content/<chemin
+relatif complet>. Pas de base SQLite, WAL ou fichiers SwiftData dans l’archive.
+format = org.mangaios.library-backup ; version = 1 ; createdAt = date encodée
+par JSONEncoder (secondes depuis le 1er janvier 2001).
+snapshot : toutes les séries (y compris hors bibliothèque), leurs UUID,
+identités de source, métadonnées, favoris, couvertures, catégories/ordre/
+associations, chapitres, numéros/ordre, lu/signets/progression, pages et
+références de fichiers, UUID/date/page/durée d’historique, réglages globaux
+et surcharges de série. Les UUID internes des objets SwiftData de réglages
+de série sont régénérés ; leurs valeurs et identités de série sont préservées.
+files : chemin, taille réelle et SHA-256 hexadécimal minuscule par fichier.
+Les fichiers privés sans référence sont également conservés : pages extraites,
+archives/documents, couvertures, manifeste d’import et XML original, inchangés.
+Le dossier staging des imports non confirmés n’est jamais exporté.
+Les répertoires vides ne sont pas représentés.
+
+Sécurité et limites par défaut
+-----------------------------
+ZIPFoundation reste exactement en version 0.9.20 ; aucune dépendance ajoutée.
+Lecture ZIP STORE ou DEFLATE, CRC vérifié sur chaque flux, SHA-256 et tailles
+réelles vérifiés. Écriture STORE, pour un budget disque prévisible.
+Refus : version inconnue, ZIP64, multivolume, chiffrement, ZIP tronqué,
+entrées supplémentaires/manquantes/dupliquées (également après normalisation
+Unicode et casse), répertoires ZIP, liens symboliques, chemins absolus,
+traversée, séparateurs alternatifs, conflits fichier/dossier et quotas dépassés.
+Extraction manuelle uniquement vers un dossier neuf ; aucune extraction
+ZIPFoundation directement vers une destination fournie par l’archive.
+Sélection Fichiers coordonnée avec NSFileCoordinator et accès security-scoped.
+
+Maximum : 10 000 entrées (manifeste inclus), 100 Mio par fichier,
+2 Gio de contenu total, 2 Gio d’archive, manifeste JSON limité à 16 Mio,
+réserve disque de 64 Mio. Le budget disque est vérifié avant export,
+préparation et création de la sécurité. Les fichiers sont copiés et hachés
+par blocs de 64 Kio ; seul le manifeste est décodé en mémoire.
+Le graphe est validé avant mutation : UUID uniques, identités uniques,
+références croisées, associations inverses, ordre continu des catégories/
+pages, pages de progression et historique valides, dates/durées/nombres
+finis, énumérations Codable strictes, tailles et longueurs bornées.
+
+SHA-256 et CRC assurent l’intégrité, pas l’authenticité : une archive peut être
+fabriquée par un tiers. Aucune exécution ni connexion réseau n’est déclenchée.
+Les archives ne sont PAS chiffrées et contiennent vos notes/historique.
+N’importez que des archives de confiance et protégez leur lieu de stockage.
+
+Atomicité et reprise
+-------------------
+La capture et le remplacement sont synchrones sous MainActor : aucun await
+entre la capture du dépôt et l’installation. MutationGate interdit tous les
+écrivains du dépôt pendant cette opération ; un import garde une réservation
+depuis sa préparation jusqu’à sa confirmation ou son abandon. Terminer ou
+annuler l’import avant sauvegarde/restauration. Fonctionnement mono-processus :
+pas de garantie si un autre processus écrit directement dans le dossier/base.
+Les gros volumes peuvent bloquer momentanément l’interface ; garder
+l’application au premier plan. Pas de tâche automatique en arrière-plan.
+
+Chaque remplacement valide change aussi la génération du contenu :
+les événements/progressions différés d’un ancien lecteur sont ignorés,
+ses vues sont rechargées et le cache d’images/les miniatures distinguent
+les générations, même si les UUID et chemins restaurés sont identiques.
+Cela évite qu’une ancienne session écrive après la fin du verrou ou qu’une
+image mise en cache représente les octets d’avant la restauration.
+
+Les nouveaux fichiers validés sont préparés à côté de LocalContent, sur le
+même volume. Avant le premier déplacement : archive de sécurité complète,
+snapshot previous.json et journal.json persistant (UUID, racine préexistante,
+phase pending). previousManifest.json conserve également la table SHA-256
+du préimage ; la reprise vérifie les anciens fichiers avant mutation.
+Les écritures critiques sont atomiques et synchronisées sur disque.
+L’ancienne racine est renommée old, la préparation new devient
+LocalContent, puis le dépôt remplace le graphe dans son contexte privé en
+une seule transaction/save avec rollback en cas d’échec.
+Il n’existe pas de transaction unique fichiers + SwiftData : le journal
+comble cette différence. Toute phase pending/recovering au démarrage revient
+au préimage du dépôt et aux anciens fichiers, même si le nouveau save avait
+réussi juste avant l’interruption. La phase committed, écrite après le save,
+ne revient jamais en arrière : seul le nettoyage old/new/journal est repris.
+Une erreur de nettoyage après commit est signalée sans annuler le succès.
+Si un rollback ne peut pas être réconcilié pendant la session, les écrivains
+et l’ouverture de lecteurs restent bloqués jusqu’à la reprise au redémarrage.
+Au démarrage, un nettoyage encore impossible est un avertissement et
+n’interdit pas la lecture des données déjà validées.
+La sécurité reste disponible. Une reprise impossible bloque l’ouverture
+de l’interface (aucun import/lecteur n’est alors construit).
+L’écran de stockage indisponible permet toujours de partager les archives
+de sécurité lisibles, sans ouvrir de dépôt ni déclencher de mutation.
+La reprise est idempotente, y compris une interruption pendant le rollback.
+Les exports et préparations abandonnés par une interruption sont nettoyés
+au démarrage suivant, sans supprimer les archives de sécurité.
+
+Validation sur Mac
+-----------------
+xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -only-testing:MangaiOSTests/LibraryBackupTests \
+  -only-testing:MangaiOSTests/LocalImportTests test
+Adapter le nom du simulateur installé. Exécuter ensuite la suite complète
+avant livraison App Store ; les tests hébergés et les schémas V1/V2 sont
+inchangés. Tester manuellement exporter/annuler, aperçu/annuler, confirmation,
+partage de sécurité et restauration sur un appareil à disque presque plein.
+
+Sur Linux : parsing Swift 5, typecheck du domaine portable, tests portables
+existants et structure Xcode peuvent être contrôlés. SwiftUI, SwiftData,
+CryptoKit Apple, ImageIO, simulateur et xcodebuild ne sont pas disponibles :
+ces vérifications ne constituent pas un build iOS ni une exécution des tests
+Apple de sauvegarde/reprise.
+
+Contrôles effectués dans l’environnement Linux
+----------------------------------------------
+38 XCTest portables exécutés, 0 échec : domaine (4), présentation (5),
+disposition/progression/chemins du lecteur (13), politique d’import/XML (10),
+nouveau snapshot de sauvegarde (6).
+17 tests Apple ajoutés pour archive complète, identités, mémoire/disque,
+UI/view-model, annulation, fichiers originaux, quotas, CRC/SHA, versions,
+références, duplications, liens, reprise des checkpoints et corruption.
+Total : 96 méthodes XCTest (73 existantes + 23 nouvelles).
+Ces 17 tests Apple sont analysés syntaxiquement mais non exécutés ici.
+Structure Xcode, références uniques, tests hébergés, schéma partagé et
+ZIPFoundation exact 0.9.20 contrôlés ; git diff --check effectué.
+La revue automatique est indisponible (outil absent). CodeQL Swift n’a pas
+pu créer sa base faute de SDK/build Apple. Aucun résultat positif de build,
+de revue automatique ou de scan Swift n’est annoncé.

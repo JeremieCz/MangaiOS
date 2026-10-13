@@ -14,6 +14,7 @@ struct ReaderView: View {
     @State private var complete = false
     @State private var debounce: Task<Void, Never>?
     @State private var error: String?
+    @State private var generation = MutationGate.generation
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dismiss) private var dismiss
 
@@ -26,9 +27,10 @@ struct ReaderView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             if let chapter, !chapter.pages.isEmpty {
+                let visibleGeneration = generation
                 ReaderCanvas(chapter: chapter, preferences: preferences, splitPanoramas: splitPanoramas,
-                             root: model.root, page: page, onVisible: { index, completed in
-                    guard scenePhase == .active else { return }
+                             root: model.root, generation: visibleGeneration, page: page, onVisible: { index, completed in
+                    guard scenePhase == .active, visibleGeneration == MutationGate.generation else { return }
                     page = index; complete = completed
                     gate.visible(index, at: Date())
                     debounce?.cancel()
@@ -37,6 +39,7 @@ struct ReaderView: View {
                         flush(pausing: false)
                     }
                 }, onTap: { controls.toggle() })
+                .id(visibleGeneration)
                 .ignoresSafeArea(edges: controls ? [] : .all)
                 if controls {
                     VStack {
@@ -74,6 +77,7 @@ struct ReaderView: View {
         .toolbar(.hidden, for: .tabBar)
         .preferredColorScheme(.dark)
         .onAppear { load() }
+        .onChange(of: model.contentGeneration) { _, _ in load() }
         .onDisappear { flush(pausing: true); model.refresh() }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active { flush(pausing: true) }
@@ -92,7 +96,13 @@ struct ReaderView: View {
     }
 
     private func load() {
+        if generation != MutationGate.generation {
+            debounce?.cancel(); debounce = nil
+            gate = ReaderProgressGate(); complete = false; chapter = nil
+            generation = MutationGate.generation
+        }
         do {
+            try MutationGate.requireWritable()
             let value = try model.repository.chapter(id: chapterID)
             preferences = try model.repository.resolvedPreferences(seriesID: value.seriesID)
             chapter = value
@@ -103,6 +113,10 @@ struct ReaderView: View {
 
     private func flush(pausing: Bool) {
         debounce?.cancel(); debounce = nil
+        guard generation == MutationGate.generation else {
+            gate = ReaderProgressGate(); complete = false
+            return
+        }
         let backup = gate
         let now = Date()
         let value = pausing ? gate.pause(at: now) : gate.checkpoint(at: now)

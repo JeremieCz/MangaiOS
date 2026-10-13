@@ -10,9 +10,11 @@ final class LibraryModel: ObservableObject {
     @Published var history: [HistorySnapshot] = []
     @Published var preferences = ReadingPreferences()
     @Published var error: String?
+    @Published private(set) var contentGeneration = MutationGate.generation
 
-    init(repository: any LibraryRepository, importer: LocalImportService, root: URL) {
+    init(repository: any LibraryRepository, importer: LocalImportService, root: URL, initialError: String? = nil) {
         self.repository = repository; self.importer = importer; self.root = root
+        error = initialError
     }
 
     func refresh() {
@@ -21,6 +23,7 @@ final class LibraryModel: ObservableObject {
             categories = try repository.categories()
             history = try repository.history()
             preferences = try repository.globalPreferences()
+            contentGeneration = MutationGate.generation
         } catch { self.error = error.localizedDescription }
     }
 
@@ -38,8 +41,9 @@ struct LibraryPlaceholderView: View {
     @State private var inLibraryOnly = true
     @State private var showsImport = false
 
-    init(repository: any LibraryRepository, importer: LocalImportService, root: URL) {
-        _model = StateObject(wrappedValue: LibraryModel(repository: repository, importer: importer, root: root))
+    init(repository: any LibraryRepository, importer: LocalImportService, root: URL, initialError: String? = nil) {
+        _model = StateObject(wrappedValue: LibraryModel(repository: repository, importer: importer, root: root,
+                                                      initialError: initialError))
     }
 
     var body: some View {
@@ -63,7 +67,7 @@ struct LibraryPlaceholderView: View {
                             SeriesDetailView(model: model, seriesID: series.id)
                         } label: {
                             HStack {
-                                CoverThumbnail(series: series, root: model.root)
+                                CoverThumbnail(series: series, root: model.root, generation: model.contentGeneration)
                                 VStack(alignment: .leading) {
                                     Text(series.metadata.title).font(.headline)
                                     let counts = LibrarySelection.counters(series)
