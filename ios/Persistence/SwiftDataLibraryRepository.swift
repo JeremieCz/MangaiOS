@@ -43,154 +43,155 @@ final class SwiftDataLibraryRepository: LibraryRepository {
             context.rollback()
             throw error
         }
+    }
 
-        func exportSnapshot() throws -> LibraryBackupSnapshot {
-            let value = LibraryBackupSnapshot(series: try allSeries(inLibraryOnly: false),
-                                              categories: try categories(), globalPreferences: try globalPreferences())
-            try value.validate()
-            return value
-        }
+    func exportSnapshot() throws -> LibraryBackupSnapshot {
+        let value = LibraryBackupSnapshot(series: try allSeries(inLibraryOnly: false),
+                                          categories: try categories(), globalPreferences: try globalPreferences())
+        try value.validate()
+        return value
+    }
 
-        func replaceSnapshot(_ snapshot: LibraryBackupSnapshot) throws {
-            try MutationGate.requireReplacementAccess()
-            // Toute validation précède la première mutation. Un seul save, y compris l’historique.
-            try snapshot.validate()
-            try transaction(replacement: true) {
-                // Réutiliser les UUID existants évite l’upsert implicite d’un objet unique
-                // supprimé puis réinséré dans le même save SwiftData.
-                var oldSeries = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredSeries>()).map { ($0.id, $0) })
-                var oldChapters = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredChapter>()).map { ($0.id, $0) })
-                var oldFiles = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredFile>()).map { ($0.id, $0) })
-                var oldPages = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredPage>()).map { ($0.id, $0) })
-                var oldHistories = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredHistory>()).map { ($0.id, $0) })
-                var oldCategories = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredCategory>()).map { ($0.id, $0) })
-                var oldPreferences = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredSeriesPreferences>()).map { ($0.seriesID, $0) })
-                let seriesIdentities = Dictionary(uniqueKeysWithValues: oldSeries.values.map { ($0.identityKey, $0.id) })
-                let chapterIdentities = Dictionary(uniqueKeysWithValues: oldChapters.values.map { ($0.identityKey, $0.id) })
-                let historyChapters = Dictionary(uniqueKeysWithValues: oldHistories.values.map { ($0.chapterID, $0.id) })
-                let incomingSeriesIDs = Set(snapshot.series.map(\.id))
-                let incomingChapterIDs = Set(snapshot.series.flatMap(\.chapters).map(\.id))
-                let incomingHistoryIDs = Set(snapshot.series.flatMap(\.chapters).compactMap(\.history).map(\.id))
-                // Détacher les anciens parents avant de reconstruire les associations ; la
-                // suppression ultérieure ne doit pas cascader vers des objets réutilisés.
-                for item in oldSeries.values { item.chapters = []; item.categories = []; item.cover = nil; item.preferences = nil }
-                for item in oldChapters.values { item.series = nil; item.files = []; item.pages = []; item.history = nil }
-                for item in oldFiles.values { item.chapter = nil; item.coverSeries = nil; item.pages = [] }
-                for item in oldPages.values { item.chapter = nil; item.file = nil }
-                for item in oldHistories.values { item.chapter = nil }
-                for item in oldPreferences.values { item.series = nil }
-                for item in oldCategories.values { item.series = [] }
-                var categories: [UUID: StoredCategory] = [:]
-                for item in snapshot.categories {
-                    let stored = oldCategories.removeValue(forKey: item.id)
-                        ?? StoredCategory(id: item.id, name: item.name, order: item.order, isSystem: item.isSystem)
-                    stored.name = item.name
-                    stored.order = item.order
-                    stored.isSystem = item.isSystem
-                    context.insert(stored)
-                    categories[item.id] = stored
-                }
-                func insertFile(_ item: FileSnapshot) -> StoredFile {
-                    let stored = oldFiles.removeValue(forKey: item.id)
-                        ?? StoredFile(LocalFileInput(id: item.id, path: item.path, kind: item.kind, byteCount: item.byteCount))
-                    stored.relativePath = item.path.value
-                    stored.kindRaw = item.kind.rawValue
-                    stored.byteCount = item.byteCount
-                    context.insert(stored)
-                    return stored
-                }
-                for item in snapshot.series {
-                    let identity = LibraryIdentity.key(item.sourceID, item.sourceKey)
-                    let reusedID = seriesIdentities[identity].flatMap { incomingSeriesIDs.contains($0) ? nil : $0 }
-                    let stored = oldSeries.removeValue(forKey: item.id) ?? reusedID.flatMap { oldSeries.removeValue(forKey: $0) }
-                        ?? StoredSeries(NewSeries(id: item.id, sourceID: item.sourceID, sourceKey: item.sourceKey,
-                                                  metadata: item.metadata, favoriteAt: item.favoriteAt))
-                    stored.id = item.id
-                    stored.sourceID = item.sourceID
-                    stored.sourceKey = item.sourceKey
-                    stored.identityKey = LibraryIdentity.key(item.sourceID, item.sourceKey)
-                    stored.title = item.metadata.title
-                    stored.authors = item.metadata.authors
-                    stored.artists = item.metadata.artists
-                    stored.summary = item.metadata.summary
-                    stored.genres = item.metadata.genres
-                    stored.statusRaw = item.metadata.status.rawValue
-                    stored.notes = item.metadata.notes
-                    stored.rating = item.metadata.rating
-                    stored.favoriteAt = item.favoriteAt
-                    context.insert(stored)
-                    stored.categories = item.categoryIDs.compactMap { categories[$0] }
-                    stored.cover = item.cover.map(insertFile)
-                    let prefs = oldPreferences.removeValue(forKey: item.id) ?? StoredSeriesPreferences(seriesID: item.id)
-                    prefs.modeRaw = item.preferences.mode?.rawValue
-                    prefs.doublePagesRaw = item.preferences.doublePages?.rawValue
-                    prefs.isolateCover = item.preferences.isolateCover
-                    context.insert(prefs)
-                    stored.preferences = prefs
-                    for chapter in item.chapters {
-                        let identity = LibraryIdentity.key(item.id.uuidString, chapter.key)
-                        let reusedID = chapterIdentities[identity].flatMap { incomingChapterIDs.contains($0) ? nil : $0 }
-                        let child = oldChapters.removeValue(forKey: chapter.id) ?? reusedID.flatMap { oldChapters.removeValue(forKey: $0) }
-                            ?? StoredChapter(NewChapter(id: chapter.id, seriesID: item.id, key: chapter.key,
-                                                       title: chapter.title, number: chapter.number, order: chapter.order))
-                        child.id = chapter.id
-                        child.key = chapter.key
-                        child.identityKey = LibraryIdentity.key(item.id.uuidString, chapter.key)
-                        child.title = chapter.title
-                        child.number = chapter.number
-                        child.order = chapter.order
-                        context.insert(child)
-                        child.series = stored
-                        child.isRead = chapter.isRead
-                        child.isBookmarked = chapter.isBookmarked
-                        child.lastPageIndex = chapter.lastPageIndex
-                        var files: [UUID: StoredFile] = [:]
-                        for file in chapter.files {
-                            let local = insertFile(file)
-                            local.chapter = child
-                            files[file.id] = local
-                        }
-                        for page in chapter.pages {
-                            let local = oldPages.removeValue(forKey: page.id)
-                                ?? StoredPage(LocalPageInput(id: page.id, fileID: page.fileID, entryIndex: page.entryIndex,
-                                                           width: page.width, height: page.height), index: page.index)
-                            local.index = page.index
-                            local.entryIndex = page.entryIndex
-                            local.width = page.width
-                            local.height = page.height
-                            context.insert(local)
-                            local.chapter = child
-                            local.file = files[page.fileID]
-                        }
-                        if let history = chapter.history {
-                            let reusedID = historyChapters[chapter.id].flatMap { incomingHistoryIDs.contains($0) ? nil : $0 }
-                            let local = oldHistories.removeValue(forKey: history.id) ?? reusedID.flatMap { oldHistories.removeValue(forKey: $0) }
-                                ?? StoredHistory(id: history.id, chapterID: chapter.id, date: history.lastReadAt,
-                                                 page: history.lastPageIndex, duration: history.duration)
-                            local.id = history.id
-                            local.chapterID = chapter.id
-                            local.lastReadAt = history.lastReadAt
-                            local.lastPageIndex = history.lastPageIndex
-                            local.duration = history.duration
-                            context.insert(local)
-                            child.history = local
-                        }
-                        for item in oldPages.values { context.delete(item) }
-                        for item in oldHistories.values { context.delete(item) }
-                        for item in oldFiles.values { context.delete(item) }
-                        for item in oldPreferences.values { context.delete(item) }
-                        for item in oldChapters.values { context.delete(item) }
-                        for item in oldSeries.values { context.delete(item) }
-                        for item in oldCategories.values { context.delete(item) }
+    func replaceSnapshot(_ snapshot: LibraryBackupSnapshot) throws {
+        try MutationGate.requireReplacementAccess()
+        // Toute validation précède la première mutation. Un seul save, y compris l’historique.
+        try snapshot.validate()
+        try transaction(replacement: true) {
+            // Réutiliser les UUID existants évite l’upsert implicite d’un objet unique
+            // supprimé puis réinséré dans le même save SwiftData.
+            var oldSeries = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredSeries>()).map { ($0.id, $0) })
+            var oldChapters = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredChapter>()).map { ($0.id, $0) })
+            var oldFiles = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredFile>()).map { ($0.id, $0) })
+            var oldPages = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredPage>()).map { ($0.id, $0) })
+            var oldHistories = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredHistory>()).map { ($0.id, $0) })
+            var oldCategories = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredCategory>()).map { ($0.id, $0) })
+            var oldPreferences = Dictionary(uniqueKeysWithValues: try context.fetch(FetchDescriptor<StoredSeriesPreferences>()).map { ($0.seriesID, $0) })
+            let seriesIdentities = Dictionary(uniqueKeysWithValues: oldSeries.values.map { ($0.identityKey, $0.id) })
+            let chapterIdentities = Dictionary(uniqueKeysWithValues: oldChapters.values.map { ($0.identityKey, $0.id) })
+            let historyChapters = Dictionary(uniqueKeysWithValues: oldHistories.values.map { ($0.chapterID, $0.id) })
+            let incomingSeriesIDs = Set(snapshot.series.map(\.id))
+            let incomingChapterIDs = Set(snapshot.series.flatMap(\.chapters).map(\.id))
+            let incomingHistoryIDs = Set(snapshot.series.flatMap(\.chapters).compactMap(\.history).map(\.id))
+            // Détacher les anciens parents avant de reconstruire les associations ; la
+            // suppression ultérieure ne doit pas cascader vers des objets réutilisés.
+            for item in oldSeries.values { item.chapters = []; item.categories = []; item.cover = nil; item.preferences = nil }
+            for item in oldChapters.values { item.series = nil; item.files = []; item.pages = []; item.history = nil }
+            for item in oldFiles.values { item.chapter = nil; item.coverSeries = nil; item.pages = [] }
+            for item in oldPages.values { item.chapter = nil; item.file = nil }
+            for item in oldHistories.values { item.chapter = nil }
+            for item in oldPreferences.values { item.series = nil }
+            for item in oldCategories.values { item.series = [] }
+            var categories: [UUID: StoredCategory] = [:]
+            for item in snapshot.categories {
+                let stored = oldCategories.removeValue(forKey: item.id)
+                    ?? StoredCategory(id: item.id, name: item.name, order: item.order, isSystem: item.isSystem)
+                stored.name = item.name
+                stored.order = item.order
+                stored.isSystem = item.isSystem
+                context.insert(stored)
+                categories[item.id] = stored
+            }
+            func insertFile(_ item: FileSnapshot) -> StoredFile {
+                let stored = oldFiles.removeValue(forKey: item.id)
+                    ?? StoredFile(LocalFileInput(id: item.id, path: item.path, kind: item.kind, byteCount: item.byteCount))
+                stored.relativePath = item.path.value
+                stored.kindRaw = item.kind.rawValue
+                stored.byteCount = item.byteCount
+                context.insert(stored)
+                return stored
+            }
+            for item in snapshot.series {
+                let identity = LibraryIdentity.key(item.sourceID, item.sourceKey)
+                let reusedID = seriesIdentities[identity].flatMap { incomingSeriesIDs.contains($0) ? nil : $0 }
+                let stored = oldSeries.removeValue(forKey: item.id) ?? reusedID.flatMap { oldSeries.removeValue(forKey: $0) }
+                    ?? StoredSeries(NewSeries(id: item.id, sourceID: item.sourceID, sourceKey: item.sourceKey,
+                                              metadata: item.metadata, favoriteAt: item.favoriteAt))
+                stored.id = item.id
+                stored.sourceID = item.sourceID
+                stored.sourceKey = item.sourceKey
+                stored.identityKey = LibraryIdentity.key(item.sourceID, item.sourceKey)
+                stored.title = item.metadata.title
+                stored.authors = item.metadata.authors
+                stored.artists = item.metadata.artists
+                stored.summary = item.metadata.summary
+                stored.genres = item.metadata.genres
+                stored.statusRaw = item.metadata.status.rawValue
+                stored.notes = item.metadata.notes
+                stored.rating = item.metadata.rating
+                stored.favoriteAt = item.favoriteAt
+                context.insert(stored)
+                stored.categories = item.categoryIDs.compactMap { categories[$0] }
+                stored.cover = item.cover.map(insertFile)
+                let prefs = oldPreferences.removeValue(forKey: item.id) ?? StoredSeriesPreferences(seriesID: item.id)
+                prefs.modeRaw = item.preferences.mode?.rawValue
+                prefs.doublePagesRaw = item.preferences.doublePages?.rawValue
+                prefs.isolateCover = item.preferences.isolateCover
+                context.insert(prefs)
+                stored.preferences = prefs
+                for chapter in item.chapters {
+                    let identity = LibraryIdentity.key(item.id.uuidString, chapter.key)
+                    let reusedID = chapterIdentities[identity].flatMap { incomingChapterIDs.contains($0) ? nil : $0 }
+                    let child = oldChapters.removeValue(forKey: chapter.id) ?? reusedID.flatMap { oldChapters.removeValue(forKey: $0) }
+                        ?? StoredChapter(NewChapter(id: chapter.id, seriesID: item.id, key: chapter.key,
+                                                   title: chapter.title, number: chapter.number, order: chapter.order))
+                    child.id = chapter.id
+                    child.key = chapter.key
+                    child.identityKey = LibraryIdentity.key(item.id.uuidString, chapter.key)
+                    child.title = chapter.title
+                    child.number = chapter.number
+                    child.order = chapter.order
+                    context.insert(child)
+                    child.series = stored
+                    child.isRead = chapter.isRead
+                    child.isBookmarked = chapter.isBookmarked
+                    child.lastPageIndex = chapter.lastPageIndex
+                    var files: [UUID: StoredFile] = [:]
+                    for file in chapter.files {
+                        let local = insertFile(file)
+                        local.chapter = child
+                        files[file.id] = local
+                    }
+                    for page in chapter.pages {
+                        let local = oldPages.removeValue(forKey: page.id)
+                            ?? StoredPage(LocalPageInput(id: page.id, fileID: page.fileID, entryIndex: page.entryIndex,
+                                                       width: page.width, height: page.height), index: page.index)
+                        local.index = page.index
+                        local.entryIndex = page.entryIndex
+                        local.width = page.width
+                        local.height = page.height
+                        context.insert(local)
+                        local.chapter = child
+                        local.file = files[page.fileID]
+                    }
+                    if let history = chapter.history {
+                        let reusedID = historyChapters[chapter.id].flatMap { incomingHistoryIDs.contains($0) ? nil : $0 }
+                        let local = oldHistories.removeValue(forKey: history.id) ?? reusedID.flatMap { oldHistories.removeValue(forKey: $0) }
+                            ?? StoredHistory(id: history.id, chapterID: chapter.id, date: history.lastReadAt,
+                                             page: history.lastPageIndex, duration: history.duration)
+                        local.id = history.id
+                        local.chapterID = chapter.id
+                        local.lastReadAt = history.lastReadAt
+                        local.lastPageIndex = history.lastPageIndex
+                        local.duration = history.duration
+                        context.insert(local)
+                        child.history = local
                     }
                 }
-                let global = try storedGlobalPreferences()
-                global.modeRaw = snapshot.globalPreferences.mode.rawValue
-                global.doublePagesRaw = snapshot.globalPreferences.doublePages.rawValue
-                global.isolateCover = snapshot.globalPreferences.isolateCover
             }
-            MutationGate.didReplace()
+            // Nettoyer une seule fois le graphe restant, même sans série à restaurer.
+            for item in oldPages.values { context.delete(item) }
+            for item in oldHistories.values { context.delete(item) }
+            for item in oldFiles.values { context.delete(item) }
+            for item in oldPreferences.values { context.delete(item) }
+            for item in oldChapters.values { context.delete(item) }
+            for item in oldSeries.values { context.delete(item) }
+            for item in oldCategories.values { context.delete(item) }
+            let global = try storedGlobalPreferences()
+            global.modeRaw = snapshot.globalPreferences.mode.rawValue
+            global.doublePagesRaw = snapshot.globalPreferences.doublePages.rawValue
+            global.isolateCover = snapshot.globalPreferences.isolateCover
         }
+        MutationGate.didReplace()
     }
 
     private func storedSeries(_ id: UUID) throws -> StoredSeries {

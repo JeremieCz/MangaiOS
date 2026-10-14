@@ -98,6 +98,103 @@ final class LibraryBackupTests: XCTestCase {
     }
 
     @MainActor
+    func testEmptySnapshotRemovesEntireGraphAndPersistsAfterReopening() throws {
+        let store = workspace.appendingPathComponent("empty.sqlite")
+        var empty: LibraryBackupSnapshot!
+        try autoreleasepool {
+            let container = try StorageFactory.makeContainer(storeURL: store)
+            let concrete = try SwiftDataLibraryRepository(container: container)
+            empty = try concrete.exportSnapshot()
+            _ = try populate(concrete)
+            let repo: any LibraryRepository = concrete
+            for _ in 0..<2 {
+                try repo.replaceSnapshot(empty)
+                XCTAssertEqual(try repo.exportSnapshot(), empty)
+                let reloaded = try SwiftDataLibraryRepository(container: container)
+                XCTAssertEqual(try reloaded.exportSnapshot(), empty)
+            }
+        }
+        try autoreleasepool {
+            let container = try StorageFactory.makeContainer(storeURL: store)
+            let repo = try SwiftDataLibraryRepository(container: container)
+            XCTAssertEqual(try repo.exportSnapshot(), empty)
+            // Vérifier aussi les objets détachés, invisibles dans le snapshot.
+            let context = ModelContext(container)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredSeries>()), 0)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredChapter>()), 0)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredFile>()), 0)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredPage>()), 0)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredHistory>()), 0)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredSeriesPreferences>()), 0)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredCategory>()), 1)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredGlobalPreferences>()), 1)
+        }
+    }
+
+    @MainActor
+    func testMultipleSeriesAndChaptersRestoreTwiceWithReusedIDsAndPersist() throws {
+        let store = workspace.appendingPathComponent("multiple.sqlite")
+        var expected: LibraryBackupSnapshot!
+        try autoreleasepool {
+            let container = try StorageFactory.makeContainer(storeURL: store)
+            let concrete = try SwiftDataLibraryRepository(container: container)
+            let repo: any LibraryRepository = concrete
+            try repo.setGlobalPreferences(ReadingPreferences(mode: .webtoon, doublePages: .enabled, isolateCover: false))
+            for seriesIndex in 0..<2 {
+                let category = try repo.createCategory(id: UUID(), name: "Catégorie \(seriesIndex)")
+                let cover = LocalFileInput(path: try RelativePath("covers/\(seriesIndex).png"),
+                                           kind: .image, byteCount: Int64(seriesIndex + 1))
+                let series = try repo.createSeries(NewSeries(sourceKey: "série-\(seriesIndex)",
+                    metadata: SeriesMetadata(title: "Série \(seriesIndex)", notes: "Note \(seriesIndex)"),
+                    favoriteAt: Date(timeIntervalSince1970: Double(1_700_000_000 + seriesIndex)), cover: cover))
+                try repo.setCategories(seriesID: series.id, categoryIDs: [category.id])
+                try repo.setSeriesPreferences(seriesID: series.id, value: SeriesReadingPreferences(
+                    mode: seriesIndex == 0 ? .leftToRight : .vertical,
+                    doublePages: seriesIndex == 0 ? .automatic : .disabled, isolateCover: seriesIndex == 0))
+                for chapterIndex in 0..<2 {
+                    let value = seriesIndex * 2 + chapterIndex
+                    let file = LocalFileInput(path: try RelativePath("chapters/\(seriesIndex)/\(chapterIndex).cbz"),
+                                              kind: .archive, byteCount: Int64(100 + value))
+                    let chapter = try repo.createChapter(NewChapter(seriesID: series.id, key: "chapitre-\(chapterIndex)",
+                        title: "Chapitre \(value)", number: Double(value), order: chapterIndex, files: [file],
+                        pages: [LocalPageInput(fileID: file.id, entryIndex: 0, width: 100 + value, height: 200),
+                                LocalPageInput(fileID: file.id, entryIndex: 1, width: 200, height: 300 + value)]))
+                    try repo.recordReaderProgress(chapterID: chapter.id, pageIndex: chapterIndex,
+                        duration: Double(value) + 0.5, at: Date(timeIntervalSince1970: Double(1_700_100_000 + value)),
+                        completed: chapterIndex == 1)
+                    try repo.setBookmark(chapterID: chapter.id, isBookmarked: seriesIndex == chapterIndex)
+                }
+            }
+            expected = try concrete.exportSnapshot()
+            XCTAssertEqual(expected.series.count, 2)
+            XCTAssertEqual(expected.series.flatMap(\.chapters).count, 4)
+            // Les objets absents doivent disparaître sans supprimer les objets réutilisés.
+            let extra = try repo.createSeries(NewSeries(sourceKey: "à supprimer", metadata: SeriesMetadata(title: "Ancienne")))
+            _ = try repo.createChapter(NewChapter(seriesID: extra.id, key: "ancien", title: "Ancien", order: 0))
+            _ = try repo.createCategory(id: UUID(), name: "Ancienne catégorie")
+            for _ in 0..<2 {
+                try repo.replaceSnapshot(expected)
+                XCTAssertEqual(try concrete.exportSnapshot(), expected)
+                let reloaded: any LibraryRepository = try SwiftDataLibraryRepository(container: container)
+                XCTAssertEqual(try reloaded.exportSnapshot(), expected)
+            }
+        }
+        try autoreleasepool {
+            let container = try StorageFactory.makeContainer(storeURL: store)
+            let repo: any LibraryRepository = try SwiftDataLibraryRepository(container: container)
+            XCTAssertEqual(try repo.exportSnapshot(), expected)
+            let context = ModelContext(container)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredSeries>()), 2)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredChapter>()), 4)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredFile>()), 6)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredPage>()), 8)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredHistory>()), 4)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredSeriesPreferences>()), 2)
+            XCTAssertEqual(try context.fetchCount(FetchDescriptor<StoredCategory>()), 3)
+        }
+    }
+
+    @MainActor
     func testInvalidSnapshotsNeverMutateRepository() throws {
         let repo = try repository()
         let original = try populate(repo)

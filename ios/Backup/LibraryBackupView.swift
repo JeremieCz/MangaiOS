@@ -150,29 +150,6 @@ struct LibraryBackupView: View {
             case .failure(let error): backup.message = "Sélection impossible : \(error.localizedDescription)"
             }
         }
-
-        /// Même si la reprise bloque le dépôt, les sécurités restent exportables sans écrivain.
-        @MainActor
-        struct BackupRecoveryFilesView: View {
-            @State private var archives: [URL] = []
-            @State private var message: String?
-
-            var body: some View {
-                VStack {
-                    ForEach(archives, id: \.self) { url in
-                        ShareLink(item: url) {
-                            Label("Exporter la sauvegarde de sécurité \(url.deletingLastPathComponent().lastPathComponent.prefix(8))",
-                                  systemImage: "square.and.arrow.up")
-                        }
-                    }
-                    if let message { Text(message).font(.caption) }
-                }
-                .task {
-                    do { archives = try LibraryBackupService(root: LocalImportService.defaultRoot()).safetyArchives() }
-                    catch { message = "Accès aux sauvegardes impossible : \(error.localizedDescription)" }
-                }
-            }
-        }
         .fileExporter(isPresented: $showsExporter, document: backup.document,
                       contentType: .zip, defaultFilename: "MangaiOS-sauvegarde") { backup.exportFinished($0) }
         .alert("Confirmer le remplacement ?", isPresented: $confirmsReplace) {
@@ -183,6 +160,29 @@ struct LibraryBackupView: View {
             }
         } message: {
             Text("Toutes les données et copies privées actuelles seront remplacées. Une archive de sécurité complète sera conservée. Cette opération n’est pas une fusion.")
+        }
+    }
+}
+
+/// Même si la reprise bloque le dépôt, les sécurités restent exportables sans écrivain.
+@MainActor
+struct BackupRecoveryFilesView: View {
+    @State private var archives: [URL] = []
+    @State private var message: String?
+
+    var body: some View {
+        VStack {
+            ForEach(archives, id: \.self) { url in
+                ShareLink(item: url) {
+                    Label("Exporter la sauvegarde de sécurité \(url.deletingLastPathComponent().lastPathComponent.prefix(8))",
+                          systemImage: "square.and.arrow.up")
+                }
+            }
+            if let message { Text(message).font(.caption) }
+        }
+        .task {
+            do { archives = try LibraryBackupService(root: LocalImportService.defaultRoot()).safetyArchives() }
+            catch { message = "Accès aux sauvegardes impossible : \(error.localizedDescription)" }
         }
     }
 }

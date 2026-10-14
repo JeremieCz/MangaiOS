@@ -142,3 +142,20 @@ ZIPFoundation exact 0.9.20 contrôlés ; git diff --check effectué.
 La revue automatique est indisponible (outil absent). CodeQL Swift n’a pas
 pu créer sa base faute de SDK/build Apple. Aucun résultat positif de build,
 de revue automatique ou de scan Swift n’est annoncé.
+
+Correction des portées et du remplacement
+-----------------------------------------
+La transaction est fermée avant exportSnapshot/replaceSnapshot, désormais
+méthodes du dépôt conformes au protocole. Les anciens objets détachés sont
+supprimés une seule fois après toutes les séries et tous les chapitres, même
+pour un snapshot vide. La génération ne change qu’après sauvegarde réussie.
+BackupRecoveryFilesView est au niveau du fichier ; fileExporter reste attaché
+au Form de LibraryBackupView.
+Deux tests hébergés couvrent le remplacement vide et deux séries de deux
+chapitres, avec UUID, pages, fichiers, historique, catégories et réglages :
+deux remplacements successifs, nouveau contexte et réouverture sur disque.
+Validation de cette correction sous Linux : parsing Swift 5 de tous les
+fichiers iOS, typecheck Foundation du domaine/protocole/snapshot/politique
+d’import, inspection des références Xcode et git diff --check réussis.
+Les tests ajoutés sont seulement analysés syntaxiquement : sans xcodebuild,
+SDK Apple, SwiftUI ni SwiftData, aucun build iOS ni test hébergé exécuté ici.
