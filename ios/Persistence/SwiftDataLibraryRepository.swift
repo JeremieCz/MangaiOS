@@ -341,6 +341,106 @@ final class SwiftDataLibraryRepository: LibraryRepository {
         }
     }
 
+    func commitAndroidMerge(_ snapshot: LibraryBackupSnapshot) throws {
+        try snapshot.validate()
+        let baseline = try exportSnapshot()
+        let oldIDs = Set(baseline.series.map(\.id))
+        let oldCategories = Set(baseline.categories.map(\.id))
+        guard snapshot.globalPreferences == baseline.globalPreferences,
+              snapshot.series.filter({ oldIDs.contains($0.id) }) == baseline.series else {
+            throw DomainError.invalidValue("la fusion Android ne remplace pas les données existantes")
+        }
+        let additions = snapshot.series.filter { !oldIDs.contains($0.id) }
+        guard additions.allSatisfy({ $0.sourceKey.hasPrefix("android:") && $0.chapters.allSatisfy {
+            $0.pages.isEmpty && $0.history == nil && $0.lastPageIndex == nil
+        } }) else { throw DomainError.invalidValue("graphe Android") }
+        try transaction {
+            for category in snapshot.categories where !oldCategories.contains(category.id) {
+                try validateCategoryName(category.name)
+                context.insert(StoredCategory(id: category.id, name: category.name, order: category.order, isSystem: false))
+            }
+            for value in additions {
+                _ = try insertSeries(NewSeries(id: value.id, sourceID: value.sourceID, sourceKey: value.sourceKey,
+                                               metadata: value.metadata, favoriteAt: value.favoriteAt))
+                let parent = try storedSeries(value.id)
+                parent.categories = try value.categoryIDs.map(storedCategory)
+                parent.preferences?.modeRaw = value.preferences.mode?.rawValue
+                for chapter in value.chapters {
+                    for file in chapter.files { try requireNewAndroidFilePath(file.path) }
+                    _ = try insertChapter(NewChapter(id: chapter.id, seriesID: value.id, key: chapter.key,
+                        title: chapter.title, number: chapter.number, order: chapter.order,
+                        files: chapter.files.map {
+                            LocalFileInput(id: $0.id, path: $0.path, kind: $0.kind, byteCount: $0.byteCount)
+                        }))
+                    let child = try storedChapter(chapter.id)
+                    child.isRead = chapter.isRead
+                    child.isBookmarked = chapter.isBookmarked
+                }
+            }
+        }
+        MutationGate.didReplace()
+    }
+
+    func attachAndroidChapter(_ chapter: ChapterSnapshot) throws {
+        try transaction {
+            let stored = try storedChapter(chapter.id)
+            let before = try snapshot(stored)
+            guard before.pages.isEmpty, before.key.hasPrefix("android:"),
+                  chapter.seriesID == before.seriesID, chapter.key == before.key,
+                  chapter.title == before.title, chapter.number == before.number, chapter.order == before.order,
+                  chapter.isRead == before.isRead, chapter.isBookmarked == before.isBookmarked,
+                  Array(chapter.files.prefix(before.files.count)) == before.files, !chapter.pages.isEmpty else {
+                throw DomainError.invalidValue("rattachement Android déjà effectué ou modifié")
+            }
+            var files = Dictionary(uniqueKeysWithValues: stored.files.map { ($0.id, $0) })
+            for file in chapter.files.dropFirst(before.files.count) {
+                let input = LocalFileInput(id: file.id, path: file.path, kind: file.kind, byteCount: file.byteCount)
+                try requireNewFile(input)
+                try requireNewAndroidFilePath(file.path)
+                let local = StoredFile(input)
+                context.insert(local)
+                local.chapter = stored
+                files[file.id] = local
+            }
+            for page in chapter.pages {
+                try LocalPageInput(id: page.id, fileID: page.fileID, entryIndex: page.entryIndex,
+                                   width: page.width, height: page.height).validate()
+                guard let file = files[page.fileID] else { throw DomainError.notFound(page.fileID) }
+                let pageID = page.id
+                guard try context.fetchCount(FetchDescriptor<StoredPage>(
+                    predicate: #Predicate { $0.id == pageID }
+                )) == 0 else { throw DomainError.duplicate("page Android") }
+                let local = StoredPage(LocalPageInput(id: page.id, fileID: page.fileID, entryIndex: page.entryIndex,
+                                                     width: page.width, height: page.height), index: page.index)
+                context.insert(local)
+                local.chapter = stored
+                local.file = file
+            }
+            stored.lastPageIndex = chapter.lastPageIndex
+            if let history = chapter.history {
+                let historyID = history.id
+                guard try context.fetchCount(FetchDescriptor<StoredHistory>(
+                    predicate: #Predicate { $0.id == historyID }
+                )) == 0 else { throw DomainError.duplicate("historique Android") }
+                let local = StoredHistory(id: history.id, chapterID: chapter.id, date: history.lastReadAt,
+                                          page: history.lastPageIndex, duration: history.duration)
+                context.insert(local)
+                local.chapter = stored
+                stored.history = local
+            }
+            // Vérifier aussi indices, historique et références après reconstruction, avant le save unique.
+            _ = try exportSnapshot()
+        }
+        MutationGate.didReplace()
+    }
+
+    private func requireNewAndroidFilePath(_ path: RelativePath) throws {
+        let value = path.value
+        guard try context.fetchCount(FetchDescriptor<StoredFile>(
+            predicate: #Predicate { $0.relativePath == value }
+        )) == 0 else { throw DomainError.duplicate("chemin de fichier Android") }
+    }
+
     private func insertChapter(_ input: NewChapter) throws -> ChapterSnapshot {
             let parent = try storedSeries(input.seriesID)
             try LibraryIdentity.validateKey(input.key)

@@ -1,0 +1,152 @@
+Étape 8 — Import Android → iOS EXPERIMENTAL
+=========================================
+
+Utilisation
+-----------
+Réglages > Import Android → iOS (EXPERIMENTAL) > Choisir une sauvegarde.
+L’aperçu indique séries locales/distantes, chapitres, catégories et diagnostics
+avant toute écriture. Confirmer fusionne les métadonnées ; Annuler ne change rien.
+Le document d’origine reste intact. Il n’existe pas d’export inverse vers Android.
+Le traitement peut prendre du temps : garder l’application au premier plan.
+
+Seul le format protobuf courant des Backup*.kt du dépôt est ciblé, soit brut,
+soit enveloppé gzip (.tachibk), comme BackupDecoder.kt Android. Ce format n’a
+pas de numéro de version global : une alerte de compatibilité figure toujours
+dans l’aperçu. Les champs inconnus sont ignorés avec diagnostic, pas interprétés.
+Les anciens JSON, champs « brokenHistory/brokenSources », et variantes 1.x ne
+sont pas pris en charge. Un fichier partiellement compatible n’est pas une
+garantie de compatibilité avec une autre version.
+
+Contrat de traduction vérifié dans les sources
+---------------------------------------------
+Backup : mangas=1, catégories=2, sources=101 ; préférences=104,
+préférences de sources=105 et dépôts d’extensions=106 sont exclus.
+BackupManga : source=1 (Long signé), clé=2, titre=3, artiste=4, auteur=5,
+description=6, genres répétés=7, statut=8, dateAdded=13, viewer ancien=14,
+chapitres=16, catégories=17, favorite=100 (défaut true), viewer_flags=103
+(prioritaire sur viewer), historique=104, favoriteModifiedAt=107, notes=110.
+Statuts : 1 en cours, 2 terminé, 5 annulé, 6 en pause ; autres inconnus.
+Dates : dateAdded en millisecondes ; à défaut favoriteModifiedAt en secondes.
+Sans date positive, un favori garde l’époque zéro (UNKNOWN_FAVORITE_AT Android).
+Un non-favori garde une date absente, jamais une date de confirmation artificielle.
+Auteur/artiste restent chacun un texte, sans découpage heuristique par virgule.
+
+BackupChapter : clé=1, titre=2, scanlateur=3 (diagnostiqué, non importé),
+lu=4 et signet=5 (défaut false), dernière page=6 (défaut zéro),
+dateFetch=7, dateUpload=8 en millisecondes, numéro Float IEEE754=9,
+sourceOrder Long=10. Numéro négatif : absent avec avertissement ;
+NaN/Inf : rejet. Ordre négatif : zéro. Progression : bornée à 0…2147483647,
+puis à la dernière page disponible lors du rattachement.
+BackupHistory : clé=1, lastRead=2 et readDuration=3 en millisecondes.
+ReaderViewModel.updateHistory utilise explicitement inWholeMilliseconds.
+Durée négative : rejet ; date historique non positive : absente.
+Les dates de téléchargement/publication restent des entiers dans le document
+en attente, pas des dates de lecture inventées.
+BackupCategory : nom=1, ordre Long=2, identifiant Long=3 ; drapeaux ignorés.
+Identifiant Android zéro : catégorie virtuelle, non créée comme catégorie iOS.
+Les associations utilisent ces identifiants Long, pas les UUID des séries.
+Catégorie référencée absente ou identifiant répété : rejet.
+BackupSource : nom=1, sourceId Long=2 ; catalogue diagnostiqué puis ignoré.
+Les catégories répétées 17 acceptent varints non compactés et format packed.
+
+Tous les Int/Long utilisent DEFAULT de kotlinx.serialization.protobuf :
+varint en complément à deux, PAS ZigZag. Les Float sont fixed32 little-endian.
+Ce choix est confirmé par ProtoTypes.kt et ProtobufWriter.kt de la version
+1.11.0 existante, où DEFAULT utilise encodeVarint64(number.toLong()).
+Sources consultées :
+https://raw.githubusercontent.com/Kotlin/kotlinx.serialization/v1.11.0/formats/protobuf/commonMain/src/kotlinx/serialization/protobuf/ProtoTypes.kt
+https://raw.githubusercontent.com/Kotlin/kotlinx.serialization/v1.11.0/formats/protobuf/commonMain/src/kotlinx/serialization/protobuf/internal/ProtobufWriter.kt
+
+Fusion, sécurité et rattachement
+-------------------------------
+La source Android 0 reçoit sourceID « local » ; toute autre source devient
+« android:<Long décimal> ». Clés de série et chapitre : « android:<clé opaque> ».
+Aucune URL de cette sauvegarde n’est utilisée pour une requête, un fichier,
+un téléchargement ou une extension. Une série distante reste inactive.
+Sans fichiers locaux, aucun chapitre importé n’est lisible, même s’il était lu.
+UUID créés une seule fois à la préparation du graphe, pas à partir de l’ordre.
+
+Une identité de série déjà présente (ou répétée dans le fichier) refuse toute
+la fusion, sans écraser de titres, notes, catégories, préférences ou UUID.
+Les catégories personnelles au même nom sont réutilisées ; les autres sont
+ajoutées après les catégories existantes. Sans catégorie, la série apparaît
+dans « Sans catégorie ». Les réglages globaux iOS sont toujours conservés.
+Seul le mode lecteur de série est proposé en option désactivée par défaut :
+masque 7, valeurs 1 gauche-droite, 2 droite-gauche, 3 vertical, 4 webtoon,
+5 vertical continu ; autres valeurs/bits non appliqués. Aucun blob générique
+de préférences n’est conservé, y compris lorsque cette option est activée.
+
+Lu et signet sont persistés immédiatement ; progression et historique restent
+dans android/<UUID import>/<UUID chapitre>.json, référencé en fichier document.
+Ce document ne contient que clé, marques, index, dates et durée typés ; aucun
+champ de compte, suivi, memo, préférence privée ou dépôt d’extensions.
+La sauvegarde iOS de l’étape 7 inclut ce document et le restaure sans le perdre.
+
+Pour rattacher : Import local > sélectionner vos images, ZIP ou CBZ > choisir
+la série existante > Rattachement explicite > choisir le chapitre Android.
+La sélection est manuelle, jamais déduite d’un nom de fichier. Une série distante
+peut devenir lisible uniquement grâce à cette copie locale explicitement choisie.
+Le rattachement conserve UUID, clé, titre, numéro, ordre, notes et marques
+actuelles de l’utilisateur. L’index en attente est borné aux pages attachées ;
+l’historique prend les millisecondes Android, converties en secondes iOS.
+Une alerte de bornage accompagne le résultat. Le document en attente reste
+référencé après succès. Aucun rattachement sur un chapitre déjà pourvu de pages.
+
+SwiftDataLibraryRepository effectue une transaction unique pour la fusion et
+une pour le rattachement, sans supprimer/recréer les objets existants.
+MutationGate bloque récupération/restauration/sauvegarde exclusive.
+Une réservation d’import protège les fichiers en cours d’installation.
+La génération de bibliothèque invalide les événements des anciens lecteurs.
+L’import local utilise son installation/rollback existant ; un échec de
+transaction Android supprime seulement son nouveau dossier privé.
+Un échec de nettoyage bloque les mutations et demande une récupération.
+Pas de récupération automatique d’un import interrompu par arrêt du processus :
+un dossier non référencé peut rester, mais aucun chapitre partiel n’est validé.
+
+Limites et refus
+---------------
+Fichier brut/compressé ≤ 16 Mio ; sortie gzip ≤ 64 Mio, blocs de 32 Kio,
+rapport maximal 200:1 avec tolérance initiale de 1 Mio.
+Un seul membre gzip ; suffixe, concaténation, CRC incorrect, troncature refusés.
+≤ 250000 champs protobuf, ≤ 10000 séries et catégories, ≤ 30000 chapitres ;
+texte importé ≤ 1 Mio. La validation de sauvegarde iOS ajoute ses propres bornes.
+Les seuls messages ouverts ont trois niveaux connus (racine, manga, chapitre
+ou historique) ; jamais de récursion dans les champs inconnus.
+Groupes protobuf, wire types inconnus, tags zéro/hors plage, longueurs débordées,
+varints >10 octets ou débordant UInt64, booléens hors 0/1, doublons scalaires,
+types incompatibles et chaînes UTF-8 invalides importées : refus.
+Sources/clefs restent des données opaques ; chemins privés générés par UUID.
+Liens symboliques des entrées et du dossier Android refusés, documents en
+attente confinés à la racine locale, aucune donnée inconnue sensible journalisée.
+Aucune nouvelle dépendance : ZIPFoundation reste exactement 0.9.20 ;
+gzip utilise le module système Apple zlib et libz.tbd des deux cibles.
+
+Tests et validation
+-------------------
+15 tests AndroidBackupDecoderTests : varints signés extrêmes, défauts,
+horodatages/favoris, viewer ancien/moderne, exclusions, formats invalides,
+quotas, numéros non finis, progression en attente, catégories et rattachement.
+7 tests AndroidBackupIntegrationTests (Apple) : parité brut/gzip, CRC/troncature,
+bombe/quotas/liens, fusion sans écrasement, transaction annulée sur collision,
+MutationGate, rattachement réel via import local et sauvegarde/restauration
+du document en attente. Ils n’accèdent à aucun réseau ni jeu de données privé.
+
+Le hex synthétique partagé est vérifié côté Android par
+app/src/test/java/eu/kanade/tachiyomi/data/backup/AndroidInteropFixtureTest.kt,
+qui emploie les vrais modèles et ProtoBuf existants. ATTENTION : ce fixture est
+contrôlé par les sources du codec, mais n’a PAS encore été produit/exécuté
+avec Gradle dans cet environnement. La tentative du runner existant
+./gradlew :app:testDebugUnitTest --tests
+'eu.kanade.tachiyomi.data.backup.AndroidInteropFixtureTest' --offline
+a échoué avant compilation : plugin Kotlin JVM 2.4.21 absent des caches.
+Ne pas présenter ce contrat comme une capture d’un appareil Android réel.
+
+Sur Linux : typecheck portable strict de domaine/décodeur/fusion/service,
+typecheck des tests purs et parse Swift des nouveaux fichiers UI/intégration.
+Pas de SDK Apple ; tests SwiftData, SwiftUI, ImageIO et zlib Apple non exécutés.
+Sur Mac : xcodebuild -project ios/MangaiOS.xcodeproj -scheme MangaiOS
+-destination 'platform=iOS Simulator,name=iPhone 16'
+-only-testing:MangaiOSTests/AndroidBackupDecoderTests
+-only-testing:MangaiOSTests/AndroidBackupIntegrationTests test
+Adapter le nom du simulateur installé. Exécuter aussi les tests existants
+LocalImportTests et LibraryBackupTests après stabilisation de l’étape 7.

@@ -13,6 +13,8 @@ protocol LibraryRepository {
     func createChapter(_ input: NewChapter) throws -> ChapterSnapshot
     /// La série facultative et son chapitre sont sauvegardés dans une seule transaction.
     func commitImport(series: NewSeries?, chapter: NewChapter) throws -> ChapterSnapshot
+    func commitAndroidMerge(_ snapshot: LibraryBackupSnapshot) throws
+    func attachAndroidChapter(_ chapter: ChapterSnapshot) throws
     func chapter(id: UUID) throws -> ChapterSnapshot
     func deleteChapter(id: UUID) throws
     func setRead(chapterID: UUID, isRead: Bool) throws
@@ -34,6 +36,21 @@ protocol LibraryRepository {
 }
 
 extension LibraryRepository {
+    func commitAndroidMerge(_ snapshot: LibraryBackupSnapshot) throws {
+        try replaceSnapshot(snapshot)
+    }
+
+    func attachAndroidChapter(_ chapter: ChapterSnapshot) throws {
+        let baseline = try exportSnapshot()
+        let series = baseline.series.map { value in
+            SeriesSnapshot(id: value.id, sourceID: value.sourceID, sourceKey: value.sourceKey, metadata: value.metadata,
+                favoriteAt: value.favoriteAt, cover: value.cover, categoryIDs: value.categoryIDs, preferences: value.preferences,
+                chapters: value.chapters.map { $0.id == chapter.id ? chapter : $0 })
+        }
+        try replaceSnapshot(LibraryBackupSnapshot(series: series, categories: baseline.categories,
+                                                 globalPreferences: baseline.globalPreferences))
+    }
+
     func recordReaderProgress(chapterID: UUID, pageIndex: Int, duration: TimeInterval, at date: Date,
                               completed: Bool) throws {
         let wasRead = try chapter(id: chapterID).isRead

@@ -3,6 +3,7 @@ import Foundation
 enum ImportTarget: Sendable {
     case newSeries(SeriesMetadata)
     case existingSeries(UUID)
+    case existingAndroidChapter(UUID)
 }
 
 @MainActor
@@ -18,6 +19,8 @@ enum ImportCommitter {
         let series: NewSeries?
         let seriesID: UUID
         let order: Int
+        var attachmentID: UUID?
+        let generation = MutationGate.generation
         let fingerprintKey = "import:\(prepared.manifest.fingerprint)"
         switch target {
         case .newSeries(let metadata):
@@ -42,6 +45,14 @@ enum ImportCommitter {
                 throw DomainError.invalidValue("ordre du chapitre")
             }
             order = (existing.chapters.map(\.order).max() ?? -1) + 1
+        case .existingAndroidChapter(let id):
+            guard !allowDuplicate else { throw DomainError.invalidValue("une copie ne peut pas être un rattachement") }
+            let existing = try repository.chapter(id: id)
+            _ = try AndroidBackupCommitter.pending(chapter: existing, root: service.root)
+            attachmentID = id
+            series = nil
+            seriesID = existing.seriesID
+            order = existing.order
         }
         let prefix = "imports/\(prepared.id.uuidString)"
         var files: [LocalFileInput] = []
@@ -67,7 +78,14 @@ enum ImportCommitter {
             // Aucune suspension entre ce contrôle et la transaction : une annulation tardive
             // ne doit jamais supprimer les fichiers d’un chapitre déjà sauvegardé.
             try Task.checkCancellation()
-            let saved = try repository.commitImport(series: series, chapter: chapter)
+            let saved: ChapterSnapshot
+            if let attachmentID {
+                guard generation == MutationGate.generation else { throw DomainError.invalidValue("bibliothèque modifiée ; recommencez le rattachement") }
+                saved = try AndroidBackupCommitter.attach(id: attachmentID, content: chapter,
+                    root: service.root, repository: repository)
+            } else {
+                saved = try repository.commitImport(series: series, chapter: chapter)
+            }
             await service.acknowledge(prepared)
             return saved
         } catch {

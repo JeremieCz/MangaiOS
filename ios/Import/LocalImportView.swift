@@ -10,6 +10,7 @@ final class LocalImportViewModel: ObservableObject {
     @Published private(set) var message: String?
     @Published var title = ""
     @Published var targetID: UUID?
+    @Published var targetChapterID: UUID?
     @Published var separateCopy = false
     private let repository: any LibraryRepository
     private let service: LocalImportService
@@ -34,6 +35,7 @@ final class LocalImportViewModel: ObservableObject {
                 prepared = value
                 title = value.manifest.metadata.series.title
                 targetID = nil
+                targetChapterID = nil
                 separateCopy = false
             } catch {
                 message = error is CancellationError ? "Import annulé." : error.localizedDescription
@@ -51,11 +53,15 @@ final class LocalImportViewModel: ObservableObject {
             do {
                 var metadata = prepared.manifest.metadata.series
                 metadata.title = title
-                let target = targetID.map(ImportTarget.existingSeries) ?? .newSeries(metadata)
+                let target = targetChapterID.map(ImportTarget.existingAndroidChapter)
+                    ?? targetID.map(ImportTarget.existingSeries) ?? .newSeries(metadata)
                 let saved = try await ImportCommitter.commit(prepared, target: target, allowDuplicate: separateCopy,
                                                             repository: repository, service: service)
                 self.prepared = nil
                 message = "Import terminé : « \(saved.title) », \(saved.pageCount) pages."
+                if targetChapterID != nil {
+                    message = "Rattachement terminé. Progression Android bornée au nombre de pages locales ; titres et marques actuels conservés."
+                }
             } catch {
                 message = error is CancellationError ? "Import annulé." : error.localizedDescription
                 if !(await service.isPrepared(prepared)) { self.prepared = nil }
@@ -125,6 +131,17 @@ struct LocalImportView: View {
                             }
                         }
                         if model.targetID == nil { TextField("Titre de la nouvelle série", text: $model.title) }
+                        if let selected = model.existing.first(where: { $0.id == model.targetID }) {
+                            Picker("Rattachement explicite", selection: $model.targetChapterID) {
+                                Text("Ajouter un nouveau chapitre").tag(nil as UUID?)
+                                ForEach(selected.chapters.filter {
+                                    $0.pages.isEmpty && $0.key.hasPrefix("android:")
+                                }, id: \.id) { chapter in
+                                    Text("Rattacher à « \(chapter.title) »").tag(Optional(chapter.id))
+                                }
+                            }
+                            Text("Aucune correspondance automatique par nom. Un chapitre Android reste illisible sans fichiers locaux. Son état en attente est conservé dans la sauvegarde.")
+                        }
                         Text("Auteur(s) : " + prepared.manifest.metadata.series.authors.joined(separator: ", "))
                         Text("Artiste(s) : " + prepared.manifest.metadata.series.artists.joined(separator: ", "))
                         Text("Genres : " + prepared.manifest.metadata.series.genres.joined(separator: ", "))
@@ -140,6 +157,7 @@ struct LocalImportView: View {
                         ForEach(prepared.manifest.metadata.warnings, id: \.self) { Text($0).foregroundStyle(.orange) }
                         Text("Une série existante garde ses métadonnées, catégories et progression. Dates et traducteurs sont conservés dans le manifeste, pas dans les champs du chapitre.")
                         Toggle("Autoriser explicitement une copie séparée en cas de doublon", isOn: $model.separateCopy)
+                            .disabled(model.targetChapterID != nil)
                         Text("Par défaut les doublons sont refusés. Aucun chapitre n’est remplacé.")
                         Button("Confirmer l’import") { model.confirm() }
                             .disabled(model.targetID == nil && model.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -163,6 +181,8 @@ struct LocalImportView: View {
                 }
             }
             .interactiveDismissDisabled(model.busy || model.prepared != nil)
+            .onChange(of: model.targetID) { _, _ in model.targetChapterID = nil }
+            .onChange(of: model.targetChapterID) { _, value in if value != nil { model.separateCopy = false } }
             .onDisappear { model.cancel() }
         }
     }

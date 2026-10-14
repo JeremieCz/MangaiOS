@@ -25,6 +25,7 @@ struct LibrarySettingsView: View {
             }
             NavigationLink("Gérer les catégories") { CategoryManagerView(model: model) }
             NavigationLink("Sauvegarde et restauration") { LibraryBackupView(model: model) }
+            NavigationLink("Import Android → iOS (EXPERIMENTAL)") { AndroidBackupView(model: model) }
             NavigationLink("Mentions légales") { LegalNoticesView() }
         }.navigationTitle("Réglages")
     }
