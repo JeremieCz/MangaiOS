@@ -279,7 +279,7 @@ private final class ReaderZoomView: UIScrollView, UIScrollViewDelegate {
         isScrollEnabled = !continuous
         doubleTap.numberOfTapsRequired = 2
         doubleTap.isEnabled = !continuous
-        doubleTap.addTarget(self, action: #selector(zoom))
+        doubleTap.addTarget(self, action: #selector(handleDoubleTapZoom(_:)))
         addGestureRecognizer(doubleTap)
         message.textColor = .white; message.numberOfLines = 0
         message.font = .preferredFont(forTextStyle: .body)
@@ -291,7 +291,7 @@ private final class ReaderZoomView: UIScrollView, UIScrollViewDelegate {
     required init?(coder: NSCoder) { return nil }
     func viewForZooming(in scrollView: UIScrollView) -> UIView? { continuous ? nil : content }
     @objc private func retryLoad() { retry?() }
-    @objc private func zoom(_ gesture: UITapGestureRecognizer) {
+    @objc private func handleDoubleTapZoom(_ gesture: UITapGestureRecognizer) {
         guard !continuous, decoded else { return }
         if zoomScale > 1 { setZoomScale(1, animated: true) }
         else {

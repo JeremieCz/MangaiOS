@@ -144,7 +144,7 @@ struct SeriesDetailView: View {
             if let series {
                 List {
                     Section {
-                        HStack { CoverThumbnail(series: series, root: model.root); Text(series.metadata.title).font(.title2) }
+                        HStack { CoverThumbnail(series: series, root: model.root, generation: model.contentGeneration); Text(series.metadata.title).font(.title2) }
                         Text(series.metadata.summary)
                         if !series.metadata.notes.isEmpty { Text(series.metadata.notes) }
                         Button(series.isInLibrary ? "Retirer de la bibliothèque" : "Ajouter à la bibliothèque") {
