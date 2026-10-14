@@ -1,3 +1,109 @@
+# MangaiOS
+
+**MangaiOS est un port non officiel de [Mihon](https://mihon.app) pour iOS 17+, réalisé par JeremieCZ avec l’aide de GitHub Copilot.**
+
+Il reprend l’expérience du lecteur Android dans une application native SwiftUI,
+UIKit et SwiftData pour iPhone et iPad. Ce projet indépendant n’est ni une
+version officielle ni un produit soutenu par l’équipe Mihon.
+
+> Ce README a été adapté pour le projet iOS. La présentation Android d’origine
+> est conservée intégralement dans la section « README amont » ci-dessous.
+> Ses téléchargements, badges et services concernent Mihon Android, pas MangaiOS.
+
+## Fonctionnalités iOS
+
+- Bibliothèque locale : recherche, tri, catégories, métadonnées, signets et historique.
+- Lecture gauche → droite, droite → gauche, verticale paginée, webtoon et continue.
+- Zoom, pages doubles, séparation des panoramas et reprise de lecture.
+- Import ZIP/CBZ et dossiers d’images, avec copie privée et métadonnées `ComicInfo.xml`.
+- Sauvegarde complète versionnée, incluant les fichiers, restauration confirmée
+  et conservation d’une archive de sécurité.
+- Import **expérimental** des sauvegardes Android `.tachibk` ou Protobuf brut,
+  avec aperçu et rattachement manuel des fichiers locaux.
+
+Les sauvegardes Android ne contiennent pas les images des chapitres :
+leur import ne suffit pas à rendre les séries lisibles.
+
+## Compiler et tester
+
+Prérequis : **macOS, Xcode 15 ou ultérieur**, et une destination iOS 17+.
+
+1. Ouvrir [ios/MangaiOS.xcodeproj](ios/MangaiOS.xcodeproj).
+2. Sélectionner le schéma **MangaiOS** et un simulateur iPhone ou iPad.
+3. Laisser Swift Package Manager résoudre **ZIPFoundation 0.9.20**, version exacte.
+4. Compiler avec **⌘B**, lancer avec **⌘R**, exécuter les tests avec **⌘U**.
+
+Pour un iPhone réel, ajouter son compte Apple dans Xcode, choisir sa **Team**
+dans **Signing & Capabilities**, conserver la signature automatique et remplacer
+`org.example.MangaiOS` par un identifiant unique. Sélectionner l’iPhone connecté
+et activer le mode développeur si demandé. Xcode installe l’application
+directement ; aucun IPA n’est nécessaire. La signature d’une Personal Team
+gratuite expire généralement après sept jours.
+
+Les tests XCTest sont hébergés dans l’application : conserver cette configuration
+pour vérifier les ressources légales. Aucun certificat, profil de signature
+personnel ou identifiant de compte n’est fourni dans ce dépôt.
+
+## État et limites
+
+Le développeur a confirmé le build, le lancement, les tests sous Xcode et le bon
+fonctionnement de ses essais sur appareil. Cela ne constitue pas une validation
+exhaustive de tous les appareils, versions d’iOS ou formats de sauvegarde Android.
+La stabilisation et les essais de performances/accessibilité restent à poursuivre.
+
+- Pas d’extensions, de chargement de code externe, de catalogue distant ni de suivi externe.
+  La couche `Source` est réservée à un usage futur, sans fournisseur actif.
+- Pas de lecture PDF/EPUB, de connexion Apple ou de synchronisation iCloud actuellement.
+- Les sauvegardes iOS ne sont **pas chiffrées** et contiennent fichiers, notes et historique :
+  protéger leur emplacement et n’importer que des contenus de confiance.
+- La compatibilité Android reste expérimentale, sans export inverse ni garantie universelle.
+- Ce dépôt ne fournit pas de distribution App Store/TestFlight ou d’IPA signé prêt à installer.
+- MangaiOS n’héberge aucun manga et ne fournit aucun contenu à télécharger.
+
+## Documentation
+
+Les notes d’étapes décrivent les décisions, écarts avec Android et limites de validation :
+
+- [Socle et instructions Xcode](ios/Documentation/Socle.txt) — état historique de l’étape 1.
+- [Domaine et persistance](ios/Documentation/Etape2.txt).
+- [Import local et ComicInfo](ios/Documentation/Etape3.txt).
+- [Bibliothèque et lecteur](ios/Documentation/Etape4-6.txt).
+- [Sauvegarde, restauration et reprise](ios/Documentation/Etape7.txt).
+- [Compatibilité Android expérimentale](ios/Documentation/Etape8.txt).
+
+Pour signaler un problème, utiliser les
+[issues de MangaiOS](https://github.com/JeremieCz/MangaiOS/issues), avec les versions
+de Xcode/iOS, les étapes de reproduction et des données de test non personnelles.
+Ne pas transmettre de sauvegarde privée, de compte ni de certificat.
+
+## Licence et attributions
+
+MangaiOS conserve la licence [Apache 2.0](LICENSE) du projet d’origine,
+sans modification du fichier `LICENSE`, ainsi que les attributions amont :
+
+```text
+Copyright © 2015 Javier Tomás
+Copyright © 2024 Mihon Open Source Project
+```
+
+Merci aux contributeurs de [Mihon](https://github.com/mihonapp/mihon) et de Tachiyomi.
+Les contributions iOS sont réalisées par **JeremieCZ avec l’aide de GitHub Copilot** ;
+elles ne remplacent pas les crédits amont.
+
+La [notice complémentaire iOS](ios/NOTICE) est accessible dans les mentions légales
+de l’application. Aucun fichier `NOTICE` original n’a été trouvé dans le dépôt
+fourni : son contenu ne sera pas inventé et devra être préservé séparément dès
+qu’une référence vérifiable sera disponible.
+
+ZIPFoundation est distribué sous [licence MIT](ios/Resources/ZIPFoundation-LICENSE),
+également embarquée dans l’application. Les notices de redistribution et les
+attributions applicables doivent être conservées.
+
+## README amont — Mihon Android
+
+<details>
+<summary>Présentation d’origine conservée (Android uniquement)</summary>
+
 <div align="center">
 
 <a href="https://mihon.app">
@@ -84,3 +190,5 @@ limitations under the License.
 </pre>
 
 </div>
+
+</details>

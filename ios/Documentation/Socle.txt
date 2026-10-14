@@ -2,6 +2,11 @@ MangaiOS — étape 1 : socle iOS et mentions légales
 
 Note historique : ce document décrit l’état et les vérifications de l’étape 1.
 Le domaine et la persistance de l’étape 2 sont décrits dans Etape2.txt.
+La présentation actuelle, les fonctionnalités et limites figurent dans
+README.md à la racine du dépôt. MangaiOS est un port non officiel de Mihon
+pour iOS 17+, réalisé par JeremieCZ avec l’aide de GitHub Copilot.
+Les affirmations ci-dessous sur le périmètre décrivent uniquement le socle
+initial, pas l’ensemble des étapes désormais implémentées.
 
 Périmètre
 ---------

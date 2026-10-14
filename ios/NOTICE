@@ -4,9 +4,11 @@ Attributions amont conservées depuis le README du dépôt :
 Copyright © 2015 Javier Tomás
 Copyright © 2024 Mihon Open Source Project
 
-MangaiOS reprend l’objectif fonctionnel du lecteur Android Tachiyomi/Mihon.
-Le socle iOS est une nouvelle implémentation native en SwiftUI et SwiftData.
-Il ne constitue pas une version officielle de Mihon.
+MangaiOS est un port non officiel de Mihon pour iOS 17+, réalisé par
+JeremieCZ avec l’aide de GitHub Copilot.
+Il reprend l’objectif fonctionnel du lecteur Android Tachiyomi/Mihon
+dans une implémentation native en SwiftUI, UIKit et SwiftData.
+Le projet est indépendant et n’est pas soutenu officiellement par l’équipe Mihon.
 Le projet est distribué sous licence Apache 2.0 ; le fichier LICENSE du
 dépôt est inclus sans modification dans les ressources de l’application.
 
@@ -16,9 +18,13 @@ le dépôt fourni. Dès réception du fichier ou de sa référence vérifiable,
 il devra être conservé sans modification, séparément de cette notice,
 et rendu accessible dans l’application.
 
-Les nouveaux fichiers du socle iOS et les réglages Xcode sont des ajouts.
+Les fichiers iOS et les réglages Xcode sont des ajouts.
+README.md a été adapté pour présenter MangaiOS ; son texte amont est conservé
+dans une section distincte. Cette notice complémentaire a été actualisée
+pour identifier les contributions iOS, sans modifier les attributions amont.
 Le fichier .gitignore a été complété pour les fichiers locaux Xcode.
-Les sources Android, leurs attributions et le fichier LICENSE sont inchangés.
+Les attributions Android et le fichier LICENSE sont conservés ; le code
+Android n’est pas modifié par cette mise à jour documentaire.
 
 Cette notice est informative et ne modifie pas les conditions de la licence.
 
