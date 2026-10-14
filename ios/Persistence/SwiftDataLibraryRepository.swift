@@ -91,7 +91,7 @@ final class SwiftDataLibraryRepository: LibraryRepository {
                 context.insert(stored)
                 categories[item.id] = stored
             }
-            func insertFile(_ item: FileSnapshot) -> StoredFile {
+            @MainActor func insertFile(_ item: FileSnapshot) -> StoredFile {
                 let stored = oldFiles.removeValue(forKey: item.id)
                     ?? StoredFile(LocalFileInput(id: item.id, path: item.path, kind: item.kind, byteCount: item.byteCount))
                 stored.relativePath = item.path.value
@@ -121,7 +121,11 @@ final class SwiftDataLibraryRepository: LibraryRepository {
                 stored.favoriteAt = item.favoriteAt
                 context.insert(stored)
                 stored.categories = item.categoryIDs.compactMap { categories[$0] }
-                stored.cover = item.cover.map(insertFile)
+                if let cover = item.cover {
+                    stored.cover = insertFile(cover)
+                } else {
+                    stored.cover = nil
+                }
                 let prefs = oldPreferences.removeValue(forKey: item.id) ?? StoredSeriesPreferences(seriesID: item.id)
                 prefs.modeRaw = item.preferences.mode?.rawValue
                 prefs.doublePagesRaw = item.preferences.doublePages?.rawValue
