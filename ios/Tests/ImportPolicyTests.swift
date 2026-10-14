@@ -20,6 +20,16 @@ final class ImportPolicyTests: XCTestCase {
         XCTAssertFalse(ImportPolicy.ignored("a/page.png"))
     }
 
+    func testRelativePathByteLimitWithoutFileSystem() throws {
+        let path = Array(repeating: String(repeating: "a", count: 200), count: 5).joined(separator: "/")
+            + "/" + String(repeating: "b", count: 19)
+        XCTAssertEqual(path.utf8.count, 1_024)
+        XCTAssertEqual(try ImportPolicy.normalized(path), path)
+        let tooLong = path + "b"
+        XCTAssertEqual(tooLong.utf8.count, 1_025)
+        XCTAssertThrowsError(try ImportPolicy.normalized(tooLong))
+    }
+
     func testSpaceOverflowSafeAndCleanupErrorIsVisible() throws {
         XCTAssertThrowsError(try ImportPolicy.requireSpace(available: 100, needed: 90, reserve: 20))
         XCTAssertThrowsError(try ImportPolicy.requireSpace(available: Int64.max, needed: Int64.max, reserve: 1))

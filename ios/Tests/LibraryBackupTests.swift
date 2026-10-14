@@ -233,9 +233,10 @@ final class LibraryBackupTests: XCTestCase {
         let repo = try repository()
         let original = try populate(repo)
         let backup = service()
-        let longPath = Array(repeating: String(repeating: "a", count: 200), count: 5).joined(separator: "/")
-            + "/" + String(repeating: "b", count: 19)
-        XCTAssertEqual(longPath.utf8.count, 1_024)
+        // Garder une marge pour le chemin absolu de Caches et les préfixes de reprise.
+        let longPath = ["a", "b", "c"].map { String(repeating: $0, count: 96) }.joined(separator: "/")
+            + "/retained.bin"
+        XCTAssertEqual(longPath.utf8.count, 303)
         try write(longPath, Data("chemin complet".utf8))
         let exported = try backup.export(repository: repo)
         let saved = try Data(contentsOf: exported)

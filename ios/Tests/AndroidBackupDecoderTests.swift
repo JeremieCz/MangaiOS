@@ -52,7 +52,11 @@ final class AndroidBackupDecoderTests: XCTestCase {
         XCTAssertTrue(series.chapters[0].pending.isBookmarked)
     }
     func testFavoriteMillisecondsSecondsFallbackEpochAndFalse() throws {
-        XCTAssertEqual(try AndroidBackupDecoder.decode(manga(integer(13, 1234))).series[0].favoriteAt?.timeIntervalSince1970, 1.234)
+        // Date passe par l’époque 2001 : tolérer l’arrondi, bien inférieur à une milliseconde.
+        for (milliseconds, seconds): (Int64, Double) in [(1234, 1.234), (1235, 1.235)] {
+            let favoriteAt = try XCTUnwrap(AndroidBackupDecoder.decode(manga(integer(13, milliseconds))).series[0].favoriteAt)
+            XCTAssertEqual(favoriteAt.timeIntervalSince1970, seconds, accuracy: 0.000001)
+        }
         XCTAssertEqual(try AndroidBackupDecoder.decode(manga(integer(107, 1234))).series[0].favoriteAt?.timeIntervalSince1970, 1234)
         XCTAssertEqual(try AndroidBackupDecoder.decode(manga()).series[0].favoriteAt?.timeIntervalSince1970, 0)
         XCTAssertNil(try AndroidBackupDecoder.decode(manga(integer(100, 0))).series[0].favoriteAt)
@@ -187,8 +191,13 @@ final class AndroidBackupDecoderTests: XCTestCase {
         XCTAssertEqual(attached.id, original.id)
         XCTAssertEqual(attached.lastPageIndex, 0)
         XCTAssertEqual(attached.history?.duration, 2.5)
-        XCTAssertEqual(attached.history?.lastReadAt.timeIntervalSince1970, 1.234)
+        let history = try XCTUnwrap(attached.history)
+        XCTAssertEqual(history.lastReadAt.timeIntervalSince1970, 1.234, accuracy: 0.000001)
         XCTAssertEqual(attached.files.first, original.files.first)
         XCTAssertThrowsError(try AndroidLibraryMerge.attaching(attached, files: [file], pages: [page], pending: pending))
+        pending.historyMilliseconds = 1235
+        let adjacent = try AndroidLibraryMerge.attaching(edited, files: [file], pages: [page], pending: pending)
+        let adjacentHistory = try XCTUnwrap(adjacent.history)
+        XCTAssertEqual(adjacentHistory.lastReadAt.timeIntervalSince1970, 1.235, accuracy: 0.000001)
     }
 }

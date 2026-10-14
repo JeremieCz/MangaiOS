@@ -159,3 +159,12 @@ fichiers iOS, typecheck Foundation du domaine/protocole/snapshot/politique
 d’import, inspection des références Xcode et git diff --check réussis.
 Les tests ajoutés sont seulement analysés syntaxiquement : sans xcodebuild,
 SDK Apple, SwiftUI ni SwiftData, aucun build iOS ni test hébergé exécuté ici.
+
+Correction des fixtures de tests
+-------------------------------
+Le chemin imbriqué du test d’archive mesure désormais 303 octets : la limite
+Darwin du chemin absolu inclut Caches, la racine du test et les préfixes de
+préparation/reprise, pas seulement le chemin relatif. Les bornes relatives
+1 024 acceptée / 1 025 refusée restent testées sans accès disque.
+Les dates Android fractionnaires sont comparées à une microseconde près
+(y compris deux millisecondes adjacentes), sans arrondir le décodeur.
